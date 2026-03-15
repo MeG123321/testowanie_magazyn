@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazyn GiTA - Zarządzanie</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="Wrapper">
+        <aside class="panelbok">
+            <div class="logo"><h1>Magazyn GiTA</h1></div>
+            <nav class="gitanav">
+                <p>Zarządzanie użytkownikami</p>
+                <ul>
+                    <li><a href="adminpanel.html" class="active">Przegląd personelu</a></li>
+                    <li><a href="rejestracja.html">Rejestracja pracownika</a></li>
+                    <li><a href="#">Użytkownicy zapomniani (RODO)</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <div class="info">
+                    <a href="#">Wyloguj</a>
+                    <a href="#">Konto</a>
+                    <a href="index.html">Strona Główna</a>
+                </div>
+            </header>
+
+            <section class="zaw">
+                <h2>Baza pracowników - Magazyn GiTA</h2>
+                
+                <div class="search-bar">
+                    <form id="emp-search">
+                        <div class="tabelka">
+                            <div>
+                                <label for="login">Login</label>
+                                <input type="text" id="login" name="login" placeholder="Podaj login użytkownika">
+                            </div>
+                            <div>
+                                <label for="name">Imię i Nazwisko</label>
+                                <input type="text" id="name" name="name" placeholder="Podaj imię lub nazwisko użytkownika">
+                            </div>
+                            <div>
+                                <label for="pesel">PESEL</label>
+                                <input type="text" id="pesel" name="pesel" maxlength="11" placeholder="Ciąg 11 liczb">
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn-primary">Wyszukaj</button>
+                            <button type="reset" class="btn-secondary">Wyczyść</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="tabelka-wyniki">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Login</th>
+                                <th>Imię</th>
+                                <th>Nazwisko</th>
+                                <th>PESEL</th>
+                                <th>E-mail</th>
+                                <th>Status</th>
+                                <th>Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bd-dane">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

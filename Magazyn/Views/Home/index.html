@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazyn GiTA – Logowanie z bazy .db</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
+</head>
+
+<body>
+
+    <div class="Wrapper">
+        <aside class="panelbok">
+            <div class="logo"><h1>Magazyn GiTA</h1></div>
+            <nav class="gitanav">
+                <p>Przejdź</p>
+                <button id="przycisk-zaloguj" class="przycisk-menu przycisk-wyrozniony">Zaloguj się</button>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <div class="info"><a href="index.html">Strona Główna</a></div>
+            </header>
+            <section class="zaw">
+                <h1>Magazyn GiTA</h1>
+                <p>System zsynchronizowany z bazą: <strong>magazyn.db</strong></p>
+                <div id="status-bazy" style="color: #57ab5a; font-size: 12px;">Ładowanie bazy danych...</div>
+            </section>
+        </main>
+    </div>
+
+    <div id="okno-logowania" class="tlo-okienka">
+        <div class="ramka-okienka">
+            <span class="zamknij-x" id="zamknij-logowanie">&times;</span>
+            <h2 style="margin-top:0; color: white;">Logowanie</h2>
+            
+            <form id="formularz-logowania">
+                <input type="text" id="input-login" placeholder="Login" required>
+                <input type="password" id="input-haslo" placeholder="Hasło" required>
+                <button type="submit" class="przycisk-wyslij" style="margin-top:20px;">Wejdź</button>
+            </form>
+            <p id="error-msg" style="color: #ff6b6b; font-size: 12px; display: none;">Błędne dane!</p>
+        </div>
+    </div>
+
+    <script>
+        let db = null;
+
+        // 1. Ładowanie pliku magazyn.db automatycznie po starcie
+        async function initDatabase() {
+            try {
+                const sqlPromise = initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}` });
+                const dataPromise = fetch("magazyn.db").then(res => res.arrayBuffer());
+                const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
+                
+                db = new SQL.Database(new Uint8Array(buf));
+                document.getElementById('status-bazy').innerText = "✅ Baza danych aktywna (magazyn.db)";
+            } catch (err) {
+                console.error(err);
+                document.getElementById('status-bazy').innerText = "❌ Błąd ładowania magazyn.db (Uruchom przez serwer lokalny!)";
+            }
+        }
+
+        initDatabase();
+
+        // 2. Obsługa okna modalnego
+        document.getElementById("przycisk-zaloguj").onclick = () => {
+            document.getElementById("okno-logowania").style.display = "flex";
+        };
+
+        document.getElementById("zamknij-logowanie").onclick = () => {
+            document.getElementById("okno-logowania").style.display = "none";
+        };
+
+        // 3. Logowanie sprawdzające kolumny Username i Password w tabeli UZYTKOWNICY
+        document.getElementById("formularz-logowania").onsubmit = (e) => {
+            e.preventDefault();
+            const user = document.getElementById("input-login").value;
+            const pass = document.getElementById("input-haslo").value;
+
+            if (!db) {
+                alert("Baza danych nie jest jeszcze gotowa!");
+                return;
+            }
+
+            // Zapytanie SQL do tabeli UZYTKOWNICY 
+            const stmt = db.prepare("SELECT * FROM UZYTKOWNICY WHERE Username=:u AND Password=:p");
+            const result = stmt.getAsObject({":u": user, ":p": pass});
+            stmt.free();
+
+            if (result.ID) { // Jeśli znaleziono rekord 
+                localStorage.setItem("czyAdmin", "tak");
+                alert(`Witaj ${result.FirstName}!`); // Używamy danych z bazy [cite: 38, 75]
+                window.location.href = "admin.html";
+            } else {
+                document.getElementById("error-msg").style.display = "block";
+            }
+        };
+    </script>
+</body>
+</html>
