@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magazyn GiTA – Logowanie z bazy .db</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="~/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
 </head>
 
@@ -21,7 +21,7 @@
 
         <main class="main">
             <header class="header">
-                <div class="info"><a href="index.html">Strona Główna</a></div>
+                <div class="info"><a href="~/index.cshtml">Strona Główna</a></div>
             </header>
             <section class="zaw">
                 <h1>Magazyn GiTA</h1>
@@ -48,7 +48,6 @@
     <script>
         let db = null;
 
-        // 1. Ładowanie pliku magazyn.db automatycznie po starcie
         async function initDatabase() {
             try {
                 const sqlPromise = initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}` });
@@ -65,7 +64,6 @@
 
         initDatabase();
 
-        // 2. Obsługa okna modalnego
         document.getElementById("przycisk-zaloguj").onclick = () => {
             document.getElementById("okno-logowania").style.display = "flex";
         };
@@ -74,7 +72,6 @@
             document.getElementById("okno-logowania").style.display = "none";
         };
 
-        // 3. Logowanie sprawdzające kolumny Username i Password w tabeli UZYTKOWNICY
         document.getElementById("formularz-logowania").onsubmit = (e) => {
             e.preventDefault();
             const user = document.getElementById("input-login").value;
@@ -85,14 +82,13 @@
                 return;
             }
 
-            // Zapytanie SQL do tabeli UZYTKOWNICY 
             const stmt = db.prepare("SELECT * FROM UZYTKOWNICY WHERE Username=:u AND Password=:p");
             const result = stmt.getAsObject({":u": user, ":p": pass});
             stmt.free();
 
-            if (result.ID) { // Jeśli znaleziono rekord 
+            if (result.ID) { 
                 localStorage.setItem("czyAdmin", "tak");
-                alert(`Witaj ${result.FirstName}!`); // Używamy danych z bazy [cite: 38, 75]
+                alert(`Witaj ${result.FirstName}!`); 
                 window.location.href = "admin.html";
             } else {
                 document.getElementById("error-msg").style.display = "block";

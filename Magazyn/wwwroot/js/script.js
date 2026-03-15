@@ -1,23 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-    
-    // 1. OBSŁUGA OKIEN (POP-UP) 
-    
-    // Funkcja otwierająca konkretne okno
+   
     function otworzOkno(idOkna) {
         const okno = document.getElementById(idOkna);
         if(okno) {
             okno.style.display = "flex";
         }
     }
-
-    // Funkcja zamykająca wszystkie okna
+    
     function zamknijWszystkieOkna() {
         document.querySelectorAll('.tlo-okienka').forEach(okno => {
             okno.style.display = "none";
         });
     }
-
-    // Otwieranie logowania (index.html)
+  
     const btnLogin = document.getElementById("przycisk-zaloguj");
     if(btnLogin) {
         btnLogin.addEventListener("click", (e) => {
@@ -26,37 +21,30 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Otwieranie edycji POSTU (admin.html)
     document.querySelectorAll(".przycisk-edit-post").forEach(btn => {
         btn.addEventListener("click", () => {
             otworzOkno("okno-post");
         });
     });
 
-    // Otwieranie edycji UŻYTKOWNIKA (admin.html)
     document.querySelectorAll(".przycisk-edit-user").forEach(btn => {
         btn.addEventListener("click", () => {
             otworzOkno("okno-user");
         });
     });
 
-    // Zamykanie krzyżykiem (X)
     document.querySelectorAll(".zamknij-x").forEach(x => {
         x.addEventListener("click", () => {
             zamknijWszystkieOkna();
         });
     });
 
-    // Zamykanie kliknięciem w ciemne tło
     window.addEventListener("click", (e) => {
         if (e.target.classList.contains("tlo-okienka")) {
             zamknijWszystkieOkna();
         }
     });
 
-    // 2. FORMULARZE
-
-    // Logowanie
     const formularzLogowania = document.getElementById("formularz-logowania");
     if(formularzLogowania) {
         formularzLogowania.addEventListener("submit", (e) => {
@@ -74,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Edycja (admin.html)
     document.querySelectorAll(".form-edycji").forEach(form => {
         form.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -83,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 3. WYLOGOWANIE 
+    //WYLOGOWANIE DO ZROBIENIA!
     const przyciskWyloguj = document.getElementById("akcja-wyloguj");
     if(przyciskWyloguj) {
         przyciskWyloguj.addEventListener("click", () => {
@@ -93,14 +80,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 4. ZABEZPIECZENIE PANELU 
     if(window.location.href.includes("./admin.html")) {
         if(localStorage.getItem("czyAdmin") !== "tak") {
             window.location.href = "./index.html";
         }
     }
 
-    // 5. SLIDER (PĘTLA) 
     const slider = document.getElementById("moj-slider");
     const btnLewo = document.getElementById("przewin-lewo");
     const btnPrawo = document.getElementById("przewin-prawo");
