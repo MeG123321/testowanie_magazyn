@@ -206,21 +206,20 @@ td {
     text-decoration: none;
 }
 
-/* Styl dla tła okienka (overlay) */
+
 .tlo-okienka {
-    display: none; /* Domyślnie ukryte */
+    display: none; 
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Przyciemnienie tła */
+    background-color: rgba(0, 0, 0, 0.7); 
     justify-content: center;
     align-items: center;
 }
 
-/* Styl dla samej ramki logowania */
 .ramka-okienka {
     background-color: var(--panel-dark);
     padding: 30px;
@@ -231,7 +230,6 @@ td {
     text-align: center;
 }
 
-/* Przycisk zamykania (X) */
 .zamknij-x {
     position: absolute;
     top: 10px;
@@ -241,7 +239,6 @@ td {
     cursor: pointer;
 }
 
-/* Styl dla inputów wewnątrz logowania */
 #formularz-logowania input {
     width: 90%;
     padding: 10px;
