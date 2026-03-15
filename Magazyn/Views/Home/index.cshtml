@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magazyn GiTA – Logowanie z bazy .db</title>
-    <link rel="stylesheet" href="~/style.css">
+    <link rel="stylesheet" href="~/css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
 </head>
 
@@ -21,7 +21,9 @@
 
         <main class="main">
             <header class="header">
-                <div class="info"><a href="~/index.cshtml">Strona Główna</a></div>
+                <div class="info">
+  <a asp-controller="Home" asp-action="AdminPanel">Strona Główna</a>
+</div>
             </header>
             <section class="zaw">
                 <h1>Magazyn GiTA</h1>

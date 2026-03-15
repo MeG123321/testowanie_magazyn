@@ -19,12 +19,8 @@
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/rjimswa.dswa.cache.json
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/rjsmrazor.dswa.cache.json
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/rjsmcshtml.dswa.cache.json
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/scopedcss/bundle/Magazyn.styles.css
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/scopedcss/projectbundle/Magazyn.bundle.scp.css
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/7aad1dbhej-{0}-lugek5hnai-lugek5hnai.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/tlmn9et3ln-{0}-61n19gt1b8-61n19gt1b8.gz
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/3pxq18bujn-{0}-fr7q2aak1r-fr7q2aak1r.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/dmdz8xh122-{0}-bqjiyaj88i-bqjiyaj88i.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/cjueukzbnu-{0}-c2jlpeoesf-c2jlpeoesf.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/cba0zqp3in-{0}-erw9l3u2r3-erw9l3u2r3.gz
@@ -84,8 +80,6 @@
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/zo2ev4txhe-{0}-muycvpuwrr-muycvpuwrr.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/jt6xugdpac-{0}-87fc7y1x7t-87fc7y1x7t.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/eqkz62y271-{0}-jfsiqqwiad-jfsiqqwiad.gz
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/2zojp3d19z-{0}-07cmql1l3g-07cmql1l3g.gz
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/9gwm5bjsba-{0}-07cmql1l3g-07cmql1l3g.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/staticwebassets.build.json
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/staticwebassets.build.json.cache
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/staticwebassets.development.json
@@ -96,3 +90,11 @@
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/Magazyn.pdb
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/Magazyn.genruntimeconfig.cache
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/ref/Magazyn.dll
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/4hhxnjr2a1-{0}-mpi55kjxfu-mpi55kjxfu.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/nhwogi5a86-{0}-aedeprvtt9-aedeprvtt9.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/scopedcss/projectbundle/Magazyn.bundle.scp.css
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/7aad1dbhej-{0}-lugek5hnai-lugek5hnai.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/3pxq18bujn-{0}-fr7q2aak1r-fr7q2aak1r.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/2zojp3d19z-{0}-07cmql1l3g-07cmql1l3g.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/9gwm5bjsba-{0}-07cmql1l3g-07cmql1l3g.gz
