@@ -1,10 +1,17 @@
+@{
+    Layout = null; // usuń tę linię, jeśli używasz Views/Shared/_Layout.cshtml
+}
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magazyn GiTA – Logowanie z bazy .db</title>
-    <link rel="stylesheet" href="~/css/style.css">
+
+    <!-- POPRAWNIE: bez wwwroot w ścieżce -->
+    <link rel="stylesheet" href="~/css/style.css" />
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
 </head>
 
@@ -15,16 +22,23 @@
             <div class="logo"><h1>Magazyn GiTA</h1></div>
             <nav class="gitanav">
                 <p>Przejdź</p>
+
+                <!-- jeśli to ma otwierać okno logowania (JS), to OK -->
                 <button id="przycisk-zaloguj" class="przycisk-menu przycisk-wyrozniony">Zaloguj się</button>
+
+                <!-- przykład linku MVC -->
+                <!-- <a asp-controller="Home" asp-action="Index">Start</a> -->
             </nav>
         </aside>
 
         <main class="main">
             <header class="header">
                 <div class="info">
-  <a asp-controller="Home" asp-action="AdminPanel">Strona Główna</a>
-</div>
+                    <!-- Link do akcji, nie do pliku cshtml -->
+                    <a asp-controller="Home" asp-action="AdminPanel">Strona Główna</a>
+                </div>
             </header>
+
             <section class="zaw">
                 <h1>Magazyn GiTA</h1>
                 <p>System zsynchronizowany z bazą: <strong>magazyn.db</strong></p>
@@ -37,12 +51,13 @@
         <div class="ramka-okienka">
             <span class="zamknij-x" id="zamknij-logowanie">&times;</span>
             <h2 style="margin-top:0; color: white;">Logowanie</h2>
-            
+
             <form id="formularz-logowania">
                 <input type="text" id="input-login" placeholder="Login" required>
                 <input type="password" id="input-haslo" placeholder="Hasło" required>
                 <button type="submit" class="przycisk-wyslij" style="margin-top:20px;">Wejdź</button>
             </form>
+
             <p id="error-msg" style="color: #ff6b6b; font-size: 12px; display: none;">Błędne dane!</p>
         </div>
     </div>
@@ -53,9 +68,12 @@
         async function initDatabase() {
             try {
                 const sqlPromise = initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}` });
-                const dataPromise = fetch("magazyn.db").then(res => res.arrayBuffer());
+
+                // UWAGA: jeśli magazyn.db ma być serwowany z wwwroot, to daj "/magazyn.db" i wrzuć plik do wwwroot
+                const dataPromise = fetch("/magazyn.db").then(res => res.arrayBuffer());
+
                 const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
-                
+
                 db = new SQL.Database(new Uint8Array(buf));
                 document.getElementById('status-bazy').innerText = "✅ Baza danych aktywna (magazyn.db)";
             } catch (err) {
@@ -85,13 +103,18 @@
             }
 
             const stmt = db.prepare("SELECT * FROM UZYTKOWNICY WHERE Username=:u AND Password=:p");
-            const result = stmt.getAsObject({":u": user, ":p": pass});
+            const result = stmt.getAsObject({ ":u": user, ":p": pass });
             stmt.free();
 
-            if (result.ID) { 
+            if (result.ID) {
                 localStorage.setItem("czyAdmin", "tak");
-                alert(`Witaj ${result.FirstName}!`); 
-                window.location.href = "admin.html";
+                alert(`Witaj ${result.FirstName}!`);
+
+                // Jeśli "admin.html" to plik statyczny, musi być w wwwroot i wtedy:
+                // window.location.href = "/admin.html";
+                //
+                // Jeśli to ma być MVC widok, to lepiej przekieruj na akcję:
+                window.location.href = "/Home/AdminPanel";
             } else {
                 document.getElementById("error-msg").style.display = "block";
             }

@@ -1,10 +1,16 @@
+@{
+    Layout = null; // usuń jeśli używasz _Layout.cshtml
+}
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magazyn GiTA - Zarządzanie</title>
-    <link rel="stylesheet" href="~/style.css">
+
+    <!-- POPRAWNIE -->
+    <link rel="stylesheet" href="~/css/style.css" />
 </head>
 <body>
 
@@ -14,8 +20,12 @@
             <nav class="gitanav">
                 <p>Zarządzanie użytkownikami</p>
                 <ul>
-                    <li><a href="~/adminpanel.cshtml" class="active">Przegląd personelu</a></li>
-                    <li><a href="~/rejestracja.cshtml">Rejestracja pracownika</a></li>
+                    <li>
+                        <a asp-controller="Home" asp-action="AdminPanel" class="active">Przegląd personelu</a>
+                    </li>
+                    <li>
+                        <a asp-controller="Home" asp-action="Rejestracja">Rejestracja pracownika</a>
+                    </li>
                     <li><a href="#">Użytkownicy zapomniani (RODO)</a></li>
                 </ul>
             </nav>
@@ -26,13 +36,15 @@
                 <div class="info">
                     <a href="#">Wyloguj</a>
                     <a href="#">Konto</a>
-                    <a href="~/index.cshtml">Strona Główna</a>
+
+                    <!-- zamiast ~/index.cshtml -->
+                    <a asp-controller="Home" asp-action="Index">Strona Główna</a>
                 </div>
             </header>
 
             <section class="zaw">
                 <h2>Baza pracowników - Magazyn GiTA</h2>
-                
+
                 <div class="search-bar">
                     <form id="emp-search">
                         <div class="tabelka">
@@ -70,7 +82,7 @@
                             </tr>
                         </thead>
                         <tbody id="bd-dane">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </section>
