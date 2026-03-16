@@ -1,21 +1,28 @@
+@model Magazyn.Models.UserRegistrationDto
+@{
+    Layout = null;
+}
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magazyn GiTA - Rejestracja Pracownika</title>
-    <link rel="stylesheet" href="~/style.css">
-</head>
-<body>
 
+    <link rel="stylesheet" href="~/css/style.css" />
+    <script defer src="~/js/script.js"></script>
+</head>
+
+<body data-home-url='@Url.Action("Index", "Home")'>
     <div class="Wrapper">
         <aside class="panelbok">
             <div class="logo"><h1>Magazyn GiTA</h1></div>
             <nav class="gitanav">
                 <p>Zarządzanie użytkownikami</p>
                 <ul>
-                    <li><a href="~/adminpanel.cshtml">Przegląd personelu</a></li>
-                    <li><a href="~/rejestracja.cshtml" class="active">Rejestracja pracownika</a></li>
+                    <li><a asp-controller="Home" asp-action="AdminPanel">Przegląd personelu</a></li>
+                    <li><a asp-controller="Home" asp-action="Rejestracja" class="active">Rejestracja pracownika</a></li>
                     <li><a href="#">Użytkownicy zapomniani (RODO)</a></li>
                 </ul>
             </nav>
@@ -24,80 +31,135 @@
         <main class="main">
             <header class="header">
                 <div class="info">
-                    <a href="~/#">Wyloguj</a>
-                    <a href="~/#">Konto</a>
-                    <a href="~/index.cshtml">Strona Główna</a>
+                    <a href="#" id="akcja-wyloguj">Wyloguj</a>
+                    <a href="#">Konto</a>
+                    <a asp-controller="Home" asp-action="Index">Strona Główna</a>
                 </div>
             </header>
 
             <section class="zaw">
                 <h2>Dodaj nowego pracownika</h2>
-                
+
                 <div class="search-bar">
-                    <form id="registration-form">
+                    <form asp-controller="Home" asp-action="Rejestracja" method="post" class="form-rejestracja">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="All" style="color:#ff6b6b; margin-bottom:10px;"></div>
+
                         <div class="tabelka">
                             <div>
-                                <label for="reg-login">Login (5-20 znaków)</label>
-                                <input type="text" id="reg-login" name="login" required minlength="5" maxlength="20" placeholder="np. mkowalski">
-                            </div>
-                            <div>
-                                <label for="reg-email">E-mail</label>
-                                <input type="email" id="reg-email" name="email" required placeholder="user@domena.pl">
-                            </div>
-                            <div>
-                                <label for="reg-name">Imię</label>
-                                <input type="text" id="reg-name" name="name" required placeholder="np. Marek">
-                            </div>
-                            <div>
-                                <label for="reg-surname">Nazwisko</label>
-                                <input type="text" id="reg-surname" name="surname" required placeholder="np. Kowalski">
+                                <label>Login (5-20 znaków)</label>
+                                <input type="text"
+                                       name="Username"
+                                       required minlength="5" maxlength="20"
+                                       value="@Model?.Username"
+                                       placeholder="np. mkowalski">
                             </div>
 
                             <div>
-                                <label for="reg-pesel">PESEL</label>
-                                <input type="text" id="reg-pesel" name="pesel" required maxlength="11" placeholder="11 cyfr">
+                                <label>Hasło</label>
+                                <input type="password"
+                                       name="Password"
+                                       required minlength="4" maxlength="30"
+                                       placeholder="np. haslo_123">
                             </div>
+
                             <div>
-                                <label for="reg-phone">Nr telefonu (9 cyfr)</label>
-                                <input type="tel" id="reg-phone" name="phone" minlength="9" maxlength="9" required placeholder="XXXXXXXXX">
+                                <label>Imię</label>
+                                <input type="text"
+                                       name="FirstName"
+                                       required
+                                       value="@Model?.FirstName"
+                                       placeholder="np. Marek">
                             </div>
+
                             <div>
-                                <label for="reg-birth">Data urodzenia</label>
-                                <input type="date" id="reg-birth" name="birthdate" required>
+                                <label>Nazwisko</label>
+                                <input type="text"
+                                       name="LastName"
+                                       required
+                                       value="@Model?.LastName"
+                                       placeholder="np. Kowalski">
                             </div>
+
                             <div>
-                                <label for="reg-sex">Płeć</label>
-                                <select id="reg-sex" name="sex" required>
+                                <label>Email</label>
+                                <input type="email"
+                                       name="Email"
+                                       required
+                                       value="@Model?.Email"
+                                       placeholder="np. jan.kowalski@gmail.com">
+                            </div>
+
+                            <div>
+                                <label>PESEL</label>
+                                <input type="text"
+                                       name="Pesel"
+                                       required maxlength="11"
+                                       inputmode="numeric"
+                                       pattern="\d{11}"
+                                       value="@Model?.Pesel"
+                                       placeholder="11 cyfr (bez spacji i myślników)">
+                            </div>
+
+                            <div>
+                                <label>Nr telefonu</label>
+                                <input type="text"
+                                       name="NrTelefonu"
+                                       required maxlength="9"
+                                       inputmode="numeric"
+                                       pattern="\d{9}"
+                                       value="@Model?.NrTelefonu"
+                                       placeholder="9 cyfr">
+                            </div>
+
+                            <div>
+                                <label>Płeć</label>
+                                <select name="Plec" required>
                                     <option value="">Wybierz...</option>
-                                    <option value="M">Mężczyzna</option>
-                                    <option value="K">Kobieta</option>
+                                    <option value="Kobieta" selected="@(Model?.Plec == "Kobieta")">Kobieta</option>
+                                    <option value="Mężczyzna" selected="@(Model?.Plec == "Mężczyzna")">Mężczyzna</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Status</label>
+                                <select name="Status" required>
+                                    <option value="Aktywny" selected="@(string.IsNullOrEmpty(Model?.Status) || Model?.Status == "Aktywny")">Aktywny</option>
+                                    <option value="Nieaktywny" selected="@(Model?.Status == "Nieaktywny")">Nieaktywny</option>
                                 </select>
                             </div>
 
                             <div style="grid-column: span 2;">
-                                <label for="reg-address">Adres zamieszkania</label>
-                                <input type="text" id="reg-address" name="address" required placeholder="Miejscowość, Kod pocztowy, Ulica, Numer">
+                                <label>Adres</label>
+                                <input type="text"
+                                       name="Adres"
+                                       required
+                                       value="@Model?.Adres"
+                                       placeholder="Miejscowość, Kod pocztowy, Ulica, Numer">
                             </div>
+
                             <div>
-                                <label for="reg-role">Rola w systemie</label>
-                                <select id="reg-role" name="role" required>
-                                    <option value="Pracownik">Pracownik</option>
-                                    <option value="Kierownik">Kierownik</option>
+                                <label>Rola</label>
+                                <select name="Rola" required>
+                                    <option value="Użytkownik" selected="@(string.IsNullOrEmpty(Model?.Rola) || Model?.Rola == "Użytkownik")">Użytkownik</option>
+                                    <option value="Moderator" selected="@(Model?.Rola == "Moderator")">Moderator</option>
+                                    <option value="Admin" selected="@(Model?.Rola == "Admin")">Admin</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="btn-group" style="margin-top: 30px;">
                             <button type="submit" class="btn-primary">Zarejestruj pracownika</button>
-                            <button type="button" class="btn-secondary" onclick="window.location.href='adminpanel.html'">Anuluj</button>
+                            <a class="btn-secondary"
+                               asp-controller="Home"
+                               asp-action="AdminPanel"
+                               style="text-decoration:none; display:inline-block; text-align:center;">Anuluj</a>
                         </div>
                     </form>
                 </div>
-
-                <div id="form-msg" style="margin-top: 20px;"></div>
             </section>
         </main>
     </div>
-
 </body>
 </html>

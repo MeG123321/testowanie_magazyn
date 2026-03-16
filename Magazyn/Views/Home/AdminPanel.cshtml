@@ -11,11 +11,11 @@
 
     <link rel="stylesheet" href="~/css/style.css" />
 
-    <!-- sql.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
-
-    <!-- Twój JS -->
+    <!-- wspólny JS: guard + wylogowanie -->
     <script defer src="~/js/script.js"></script>
+
+    <!-- JS do pobrania użytkowników z backendu (/Home/ApiUsers) i wypełnienia tabeli -->
+    <script defer src="~/js/adminpanel-users.js"></script>
 </head>
 
 <body data-home-url='@Url.Action("Index", "Home")'>
@@ -76,25 +76,17 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Username</th>
-                                <th>Password</th>
-                                <th>FirstName</th>
-                                <th>LastName</th>
-                                <th>Adres</th>
-                                <th>Pesel</th>
-                                <th>Status</th>
-                                <th>Plec</th>
-                                <th>Rola</th>
-                                <th>NrTelefonu</th>
+                                <th>Login</th>
+                                <th>Imię</th>
+                                <th>Nazwisko</th>
+                                <th>Email</th>
+                                <th>PESEL</th>
                                 <th>Akcje</th>
                             </tr>
                         </thead>
                         <tbody id="bd-dane"></tbody>
                     </table>
                 </div>
-
-                <div id="status-bazy" style="margin-top:10px; color:#57ab5a; font-size:12px;"></div>
             </section>
         </main>
     </div>
