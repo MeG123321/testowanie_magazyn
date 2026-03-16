@@ -1,5 +1,5 @@
 @{
-    Layout = null; // usuń tę linię, jeśli używasz Views/Shared/_Layout.cshtml
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -7,34 +7,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magazyn GiTA – Logowanie z bazy .db</title>
+    <title>Magazyn GiTA – Logowanie</title>
 
-    <!-- POPRAWNIE: bez wwwroot w ścieżce -->
     <link rel="stylesheet" href="~/css/style.css" />
 
+    <!-- sql.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
+
+    <!-- Twój JS (musi być w wwwroot/js/site.js) -->
+    <script defer src="~/js/script.js"></script>
 </head>
 
-<body>
-
+<body data-admin-url='@Url.Action("AdminPanel", "Home")'>
     <div class="Wrapper">
         <aside class="panelbok">
             <div class="logo"><h1>Magazyn GiTA</h1></div>
             <nav class="gitanav">
                 <p>Przejdź</p>
-
-                <!-- jeśli to ma otwierać okno logowania (JS), to OK -->
                 <button id="przycisk-zaloguj" class="przycisk-menu przycisk-wyrozniony">Zaloguj się</button>
-
-                <!-- przykład linku MVC -->
-                <!-- <a asp-controller="Home" asp-action="Index">Start</a> -->
             </nav>
         </aside>
 
         <main class="main">
             <header class="header">
                 <div class="info">
-                    <!-- Link do akcji, nie do pliku cshtml -->
                     <a asp-controller="Home" asp-action="AdminPanel">Strona Główna</a>
                 </div>
             </header>
@@ -61,64 +57,5 @@
             <p id="error-msg" style="color: #ff6b6b; font-size: 12px; display: none;">Błędne dane!</p>
         </div>
     </div>
-
-    <script>
-        let db = null;
-
-        async function initDatabase() {
-            try {
-                const sqlPromise = initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}` });
-
-                // UWAGA: jeśli magazyn.db ma być serwowany z wwwroot, to daj "/magazyn.db" i wrzuć plik do wwwroot
-                const dataPromise = fetch("/magazyn.db").then(res => res.arrayBuffer());
-
-                const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
-
-                db = new SQL.Database(new Uint8Array(buf));
-                document.getElementById('status-bazy').innerText = "✅ Baza danych aktywna (magazyn.db)";
-            } catch (err) {
-                console.error(err);
-                document.getElementById('status-bazy').innerText = "❌ Błąd ładowania magazyn.db (Uruchom przez serwer lokalny!)";
-            }
-        }
-
-        initDatabase();
-
-        document.getElementById("przycisk-zaloguj").onclick = () => {
-            document.getElementById("okno-logowania").style.display = "flex";
-        };
-
-        document.getElementById("zamknij-logowanie").onclick = () => {
-            document.getElementById("okno-logowania").style.display = "none";
-        };
-
-        document.getElementById("formularz-logowania").onsubmit = (e) => {
-            e.preventDefault();
-            const user = document.getElementById("input-login").value;
-            const pass = document.getElementById("input-haslo").value;
-
-            if (!db) {
-                alert("Baza danych nie jest jeszcze gotowa!");
-                return;
-            }
-
-            const stmt = db.prepare("SELECT * FROM UZYTKOWNICY WHERE Username=:u AND Password=:p");
-            const result = stmt.getAsObject({ ":u": user, ":p": pass });
-            stmt.free();
-
-            if (result.ID) {
-                localStorage.setItem("czyAdmin", "tak");
-                alert(`Witaj ${result.FirstName}!`);
-
-                // Jeśli "admin.html" to plik statyczny, musi być w wwwroot i wtedy:
-                // window.location.href = "/admin.html";
-                //
-                // Jeśli to ma być MVC widok, to lepiej przekieruj na akcję:
-                window.location.href = "/Home/AdminPanel";
-            } else {
-                document.getElementById("error-msg").style.display = "block";
-            }
-        };
-    </script>
 </body>
 </html>

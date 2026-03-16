@@ -9,11 +9,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magazyn GiTA - Zarządzanie</title>
 
-    <!-- POPRAWNIE -->
     <link rel="stylesheet" href="~/css/style.css" />
 </head>
-<body>
 
+<body data-home-url='@Url.Action("Index", "Home")'>
     <div class="Wrapper">
         <aside class="panelbok">
             <div class="logo"><h1>Magazyn GiTA</h1></div>
@@ -34,10 +33,8 @@
         <main class="main">
             <header class="header">
                 <div class="info">
-                    <a href="#">Wyloguj</a>
+                    <a href="#" id="akcja-wyloguj">Wyloguj</a>
                     <a href="#">Konto</a>
-
-                    <!-- zamiast ~/index.cshtml -->
                     <a asp-controller="Home" asp-action="Index">Strona Główna</a>
                 </div>
             </header>
@@ -61,6 +58,7 @@
                                 <input type="text" id="pesel" name="pesel" maxlength="11" placeholder="Ciąg 11 liczb">
                             </div>
                         </div>
+
                         <div class="btn-group">
                             <button type="submit" class="btn-primary">Wyszukaj</button>
                             <button type="reset" class="btn-secondary">Wyczyść</button>
@@ -89,5 +87,24 @@
         </main>
     </div>
 
+    <script>
+        // Proste wylogowanie (front-endowo)
+        const logoutBtn = document.getElementById("akcja-wyloguj");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                localStorage.removeItem("czyAdmin");
+
+                const homeUrl = document.body.dataset.homeUrl || "/";
+                window.location.href = homeUrl;
+            });
+        }
+
+        // Prosta ochrona (demo)
+        if (localStorage.getItem("czyAdmin") !== "tak") {
+            const homeUrl = document.body.dataset.homeUrl || "/";
+            window.location.href = homeUrl;
+        }
+    </script>
 </body>
 </html>
