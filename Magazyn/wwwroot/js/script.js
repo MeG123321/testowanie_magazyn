@@ -1,5 +1,9 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     let db = null;
+
+    const body = document.body;
+    const adminUrl = body?.dataset?.adminUrl || null; // Index.cshtml
+    const homeUrl = body?.dataset?.homeUrl || "/";    // AdminPanel.cshtml
 
     function setStatus(text) {
         const el = document.getElementById("status-bazy");
@@ -17,166 +21,215 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // URL-e z data-* na <body>
-    const body = document.body;
-    const adminUrl = body?.dataset?.adminUrl || null; // Index: data-admin-url
-    const homeUrl = body?.dataset?.homeUrl || "/";    // AdminPanel: data-home-url
-
     async function initDatabase() {
         try {
-            setStatus("Start initDatabase()...");
+            setStatus("Ładowanie bazy danych...");
 
             if (typeof initSqlJs !== "function") {
-                console.error("initSqlJs is not defined (sql-wasm.js nie wczytany?)");
+                console.error("initSqlJs is not defined - czy sql-wasm.js się wczytał?");
                 setStatus("Błąd: sql.js nie został załadowany");
-                return;
+                return null;
             }
 
-            setStatus("Ładowanie SQL.js...");
             const SQL = await initSqlJs({
                 locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}`
             });
 
-            setStatus("Pobieranie /magazyn.db ...");
             const res = await fetch("/magazyn.db");
             if (!res.ok) {
-                console.error("fetch(/magazyn.db) failed:", res.status);
-                setStatus(`Błąd: /magazyn.db HTTP ${res.status} (plik musi być w wwwroot/magazyn.db)`);
-                return;
+                console.error("Nie można pobrać /magazyn.db:", res.status);
+                setStatus(`Błąd: /magazyn.db HTTP ${res.status}`);
+                return null;
             }
 
             const buf = await res.arrayBuffer();
-            db = new SQL.Database(new Uint8Array(buf));
-
-            // DEBUG: lista tabel
-            try {
-                const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
-                console.log("TABLES:", tables);
-            } catch (e) {
-                console.error("Nie mogę odczytać sqlite_master", e);
-            }
-
-            // DEBUG: sprawdź czy tabela istnieje
-            try {
-                const count = db.exec("SELECT COUNT(*) AS cnt FROM UZYTKOWNICY");
-                console.log("UZYTKOWNICY COUNT:", count);
-            } catch (e) {
-                console.error("Tabela UZYTKOWNICY nie istnieje albo ma inną nazwę.", e);
-                setStatus("Błąd: nie ma tabeli UZYTKOWNICY w bazie");
-                db = null;
-                return;
-            }
+            const database = new SQL.Database(new Uint8Array(buf));
 
             setStatus("Baza danych aktywna (magazyn.db)");
-        } catch (err) {
-            console.error("initDatabase error:", err);
-            setStatus("Błąd initDatabase(): " + (err?.message || err));
-            db = null;
+            return database;
+        } catch (e) {
+            console.error("initDatabase error:", e);
+            setStatus("Błąd initDatabase(): " + (e?.message || e));
+            return null;
         }
     }
 
-    // Inicjalizacja DB
-    await initDatabase();
+    function renderUsersTable(database, filters = {}) {
+        const tbody = document.getElementById("bd-dane");
+        if (!tbody) return;
 
-    // Otwieranie okna logowania
-    const btnLogin = document.getElementById("przycisk-zaloguj");
-    if (btnLogin) {
-        btnLogin.addEventListener("click", (e) => {
-            e.preventDefault();
-            otworzOkno("okno-logowania");
-        });
+        const login = (filters.login || "").trim().toLowerCase();
+        const name = (filters.name || "").trim().toLowerCase();
+        const pesel = (filters.pesel || "").trim();
+
+        const stmt = database.prepare(`
+            SELECT
+              ID,
+              Username,
+              Password,
+              FirstName,
+              LastName,
+              Adres,
+              Pesel,
+              Status,
+              Plec,
+              Rola,
+              NrTelefonu
+            FROM UZYTKOWNICY
+            WHERE 1=1
+              AND (:login = '' OR LOWER(TRIM(Username)) LIKE '%' || :login || '%')
+              AND (:name  = '' OR LOWER(TRIM(FirstName || ' ' || LastName)) LIKE '%' || :name || '%')
+              AND (:pesel = '' OR TRIM(Pesel) LIKE '%' || :pesel || '%')
+            ORDER BY ID
+        `);
+
+        stmt.bind({ ":login": login, ":name": name, ":pesel": pesel });
+
+        tbody.innerHTML = "";
+
+        while (stmt.step()) {
+            const row = stmt.getAsObject();
+            const tr = document.createElement("tr");
+
+            const makeTd = (v) => {
+                const td = document.createElement("td");
+                td.textContent = (v === undefined || v === null || v === "") ? "-" : v.toString();
+                return td;
+            };
+
+            tr.appendChild(makeTd(row.ID));
+            tr.appendChild(makeTd(row.Username));
+            tr.appendChild(makeTd(row.Password));
+            tr.appendChild(makeTd(row.FirstName));
+            tr.appendChild(makeTd(row.LastName));
+            tr.appendChild(makeTd(row.Adres));
+            tr.appendChild(makeTd(row.Pesel));
+            tr.appendChild(makeTd(row.Status));
+            tr.appendChild(makeTd(row.Plec));
+            tr.appendChild(makeTd(row.Rola));
+            tr.appendChild(makeTd(row.NrTelefonu));
+
+            const tdAkcje = document.createElement("td");
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn-primary";
+            btn.textContent = "Edytuj";
+            tdAkcje.appendChild(btn);
+            tr.appendChild(tdAkcje);
+
+            tbody.appendChild(tr);
+        }
+
+        stmt.free();
     }
 
-    // Zamykanie okienek (X)
-    document.querySelectorAll(".zamknij-x").forEach(x => {
-        x.addEventListener("click", zamknijWszystkieOkna);
-    });
+    (async () => {
+        db = await initDatabase();
 
-    // Zamykanie po kliknięciu w tło
-    window.addEventListener("click", (e) => {
-        if (e.target && e.target.classList && e.target.classList.contains("tlo-okienka")) {
-            zamknijWszystkieOkna();
+        // ===== INDEX: okno logowania =====
+        const btnLogin = document.getElementById("przycisk-zaloguj");
+        if (btnLogin) {
+            btnLogin.addEventListener("click", (e) => {
+                e.preventDefault();
+                otworzOkno("okno-logowania");
+            });
         }
-    });
 
-    // SUBMIT LOGOWANIA (SQLite)
-    const formularzLogowania = document.getElementById("formularz-logowania");
-    if (formularzLogowania) {
-        formularzLogowania.addEventListener("submit", (e) => {
-            e.preventDefault();
+        const closeX = document.getElementById("zamknij-logowanie");
+        if (closeX) closeX.addEventListener("click", zamknijWszystkieOkna);
 
-            const user = (document.getElementById("input-login")?.value || "").trim();
-            const pass = (document.getElementById("input-haslo")?.value || "").trim();
-
-            const errorMsg = document.getElementById("error-msg");
-            if (errorMsg) errorMsg.style.display = "none";
-
-            if (!db) {
-                alert("Baza danych nie jest gotowa lub nie została załadowana.");
-                return;
+        window.addEventListener("click", (e) => {
+            if (e.target && e.target.classList && e.target.classList.contains("tlo-okienka")) {
+                zamknijWszystkieOkna();
             }
+        });
 
-            // DEBUG: pokaż input
-            console.log("LOGIN INPUT:", { user, pass });
+        // ===== LOGOWANIE =====
+        const loginForm = document.getElementById("formularz-logowania");
+        if (loginForm) {
+            loginForm.addEventListener("submit", (e) => {
+                e.preventDefault();
 
-            // Logowanie login+hasło
-            let result = {};
-            try {
+                const user = (document.getElementById("input-login")?.value || "").trim();
+                const pass = (document.getElementById("input-haslo")?.value || "").trim();
+
+                const errorMsg = document.getElementById("error-msg");
+                if (errorMsg) errorMsg.style.display = "none";
+
+                if (!db) {
+                    alert("Baza danych nie jest gotowa.");
+                    return;
+                }
+
                 const stmt = db.prepare(`
-                    SELECT ID, Username, FirstName, LastName
+                    SELECT Username, FirstName, LastName, Rola
                     FROM UZYTKOWNICY
                     WHERE LOWER(TRIM(Username)) = LOWER(TRIM(:u))
                       AND TRIM(Password) = TRIM(:p)
                     LIMIT 1
                 `);
 
-                result = stmt.getAsObject({ ":u": user, ":p": pass });
+                const result = stmt.getAsObject({ ":u": user, ":p": pass });
                 stmt.free();
-            } catch (e) {
-                console.error("Błąd zapytania logowania:", e);
-            }
 
-            console.log("LOGIN RESULT:", result);
+                if (result && result.Username) {
+                    localStorage.setItem("czyAdmin", "tak");
+                    localStorage.setItem("rola", result.Rola || "");
+                    alert(`Witaj ${result.FirstName || ""}!`);
+                    zamknijWszystkieOkna();
 
-            // KLUCZOWA POPRAWKA:
-            // Nie sprawdzamy result.ID, bo w Twojej bazie ID = NULL.
-            // Sprawdzamy czy w ogóle mamy dopasowany rekord (np. Username).
-            if (result && result.Username) {
-                localStorage.setItem("czyAdmin", "tak");
-                alert(`Witaj ${result.FirstName || ""}!`);
-                zamknijWszystkieOkna();
-
-                if (!adminUrl) {
-                    alert("Brak data-admin-url na <body> w Index.cshtml.");
-                    return;
+                    if (!adminUrl) {
+                        alert("Brak data-admin-url na <body> w Index.cshtml.");
+                        return;
+                    }
+                    window.location.href = adminUrl;
+                } else {
+                    if (errorMsg) errorMsg.style.display = "block";
+                    else alert("Błędne dane!");
                 }
-
-                window.location.href = adminUrl;
-            } else {
-                if (errorMsg) errorMsg.style.display = "block";
-                else alert("Błędne dane!");
-            }
-        });
-    }
-
-    // WYLOGOWANIE (jeśli jest link/przycisk o id=akcja-wyloguj)
-    const przyciskWyloguj = document.getElementById("akcja-wyloguj");
-    if (przyciskWyloguj) {
-        przyciskWyloguj.addEventListener("click", (e) => {
-            e.preventDefault();
-            localStorage.removeItem("czyAdmin");
-            alert("Wylogowano.");
-            window.location.href = homeUrl || "/";
-        });
-    }
-
-    // OCHRONA ADMIN PANELU (demo)
-    // Jeśli na body jest data-home-url, uznajemy że to strona admina i wymagamy flagi.
-    const jestAdminWidok = !!body?.dataset?.homeUrl;
-    if (jestAdminWidok) {
-        if (localStorage.getItem("czyAdmin") !== "tak") {
-            window.location.href = homeUrl || "/";
-            return;
+            });
         }
-    }
+
+        // ===== ADMIN PANEL =====
+        const isAdminView = !!body?.dataset?.homeUrl;
+        if (isAdminView) {
+            if (localStorage.getItem("czyAdmin") !== "tak") {
+                window.location.href = homeUrl || "/";
+                return;
+            }
+
+            if (db) {
+                renderUsersTable(db);
+            }
+
+            const searchForm = document.getElementById("emp-search");
+            if (searchForm) {
+                searchForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    if (!db) return;
+
+                    const login = document.getElementById("login")?.value || "";
+                    const name = document.getElementById("name")?.value || "";
+                    const pesel = document.getElementById("pesel")?.value || "";
+
+                    renderUsersTable(db, { login, name, pesel });
+                });
+
+                searchForm.addEventListener("reset", () => {
+                    if (!db) return;
+                    setTimeout(() => renderUsersTable(db), 0);
+                });
+            }
+
+            const logoutBtn = document.getElementById("akcja-wyloguj");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem("czyAdmin");
+                    localStorage.removeItem("rola");
+                    window.location.href = homeUrl || "/";
+                });
+            }
+        }
+    })();
 });

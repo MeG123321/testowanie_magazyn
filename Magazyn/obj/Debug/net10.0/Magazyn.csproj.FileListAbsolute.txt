@@ -97,4 +97,4 @@
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/2zojp3d19z-{0}-07cmql1l3g-07cmql1l3g.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/9gwm5bjsba-{0}-07cmql1l3g-07cmql1l3g.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/4hhxnjr2a1-{0}-9t14uj2hup-9t14uj2hup.gz
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/nhwogi5a86-{0}-mzgf5m8gmh-mzgf5m8gmh.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/nhwogi5a86-{0}-4q74sj1r0q-4q74sj1r0q.gz

@@ -10,6 +10,12 @@
     <title>Magazyn GiTA - Zarządzanie</title>
 
     <link rel="stylesheet" href="~/css/style.css" />
+
+    <!-- sql.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
+
+    <!-- Twój JS -->
+    <script defer src="~/js/script.js"></script>
 </head>
 
 <body data-home-url='@Url.Action("Index", "Home")'>
@@ -70,41 +76,27 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Login</th>
-                                <th>Imię</th>
-                                <th>Nazwisko</th>
-                                <th>PESEL</th>
-                                <th>E-mail</th>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Password</th>
+                                <th>FirstName</th>
+                                <th>LastName</th>
+                                <th>Adres</th>
+                                <th>Pesel</th>
                                 <th>Status</th>
+                                <th>Plec</th>
+                                <th>Rola</th>
+                                <th>NrTelefonu</th>
                                 <th>Akcje</th>
                             </tr>
                         </thead>
-                        <tbody id="bd-dane">
-                        </tbody>
+                        <tbody id="bd-dane"></tbody>
                     </table>
                 </div>
+
+                <div id="status-bazy" style="margin-top:10px; color:#57ab5a; font-size:12px;"></div>
             </section>
         </main>
     </div>
-
-    <script>
-        // Proste wylogowanie (front-endowo)
-        const logoutBtn = document.getElementById("akcja-wyloguj");
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                localStorage.removeItem("czyAdmin");
-
-                const homeUrl = document.body.dataset.homeUrl || "/";
-                window.location.href = homeUrl;
-            });
-        }
-
-        // Prosta ochrona (demo)
-        if (localStorage.getItem("czyAdmin") !== "tak") {
-            const homeUrl = document.body.dataset.homeUrl || "/";
-            window.location.href = homeUrl;
-        }
-    </script>
 </body>
 </html>
