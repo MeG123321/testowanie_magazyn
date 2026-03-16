@@ -56,10 +56,20 @@ document.addEventListener("DOMContentLoaded", () => {
           body: new URLSearchParams({ username: user, password: pass }).toString()
         });
 
-        if (!res.ok) {
-          if (errorMsg) errorMsg.style.display = "block";
-          return;
-        }
+   if (!res.ok) {
+  let msg = "Błędne dane!";
+  try {
+    const data = await res.json();
+    if (data?.msg) msg = data.msg;
+  } catch { }
+  if (errorMsg) {
+    errorMsg.textContent = msg;
+    errorMsg.style.display = "block";
+  } else {
+    alert(msg);
+  }
+  return;
+}
 
         const data = await res.json();
         if (data?.ok) {

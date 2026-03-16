@@ -126,5 +126,6 @@
 /workspaces/testowanie_magazyn/Magazyn/bin/Debug/net10.0/runtimes/win-x86/native/e_sqlite3.dll
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/Magazyn.csproj.AssemblyReference.cache
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/Magazyn.csproj.Up2Date
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/nhwogi5a86-{0}-uyq8rjkiak-uyq8rjkiak.gz
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/1cnchjg9ei-{0}-4o6wqvwnu4-4o6wqvwnu4.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/nhwogi5a86-{0}-rp2eshzj93-rp2eshzj93.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/1cnchjg9ei-{0}-knzm3s4id4-knzm3s4id4.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/70in9r9i9u-{0}-7jpn55kiu0-7jpn55kiu0.gz
