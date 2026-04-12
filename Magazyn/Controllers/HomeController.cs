@@ -502,6 +502,48 @@ WHERE ID = $Id;
         return Ok(new { ok = true });
     }
 
+    // =========================
+// UŻYTKOWNICY WG ROLI (NOWA STRONA)
+// =========================
+[HttpGet]
+public IActionResult UsersByRole(string rola)
+{
+    if (!System.IO.File.Exists(DbPath))
+        return NotFound("Brak bazy danych");
+
+    var users = new List<UserVm>();
+
+    using var con = new SqliteConnection($"Data Source={DbPath}");
+    con.Open();
+
+    using var cmd = con.CreateCommand();
+    cmd.CommandText = @"
+SELECT ID, Username, FirstName, LastName, Email, Rola
+FROM Uzytkownicy
+WHERE LOWER(TRIM(Rola)) = LOWER(TRIM($rola))
+  AND COALESCE(Zapomniany,0) = 0;
+";
+
+    cmd.Parameters.AddWithValue("$rola", rola);
+
+    using var reader = cmd.ExecuteReader();
+    while (reader.Read())
+    {
+        users.Add(new UserVm
+        {
+            Id = Convert.ToInt64(reader["ID"]),
+            Username = reader["Username"]?.ToString(),
+            FirstName = reader["FirstName"]?.ToString(),
+            LastName = reader["LastName"]?.ToString(),
+            Email = reader["Email"]?.ToString(),
+            Rola = reader["Rola"]?.ToString()
+        });
+    }
+
+    ViewBag.Rola = rola;
+    return View(users);
+}
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

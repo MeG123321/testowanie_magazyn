@@ -47,7 +47,7 @@
             <p>Możliwość zarejestrowania nowego towaru</p>
         </div>
         <div class="karta-prawa">
-            <button class="btn-akcja">Wyświetl użytkowników</button>
+             <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Magazynier" class="btn-akcja">Wyświetl użytkowników</a>
         </div>
     </div>
 
@@ -58,7 +58,7 @@
             <p>Przeglądanie stanów magazynowych</p>
         </div>
         <div class="karta-prawa">
-            <button class="btn-akcja">Wyświetl użytkowników</button>
+             <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Kierownik_magazynu" class="btn-akcja">Wyświetl użytkowników</a>
         </div>
     </div>
 
@@ -69,7 +69,7 @@
             <p>Rejestracja sprzedaży towarów</p>
         </div>
         <div class="karta-prawa">
-            <button class="btn-akcja">Wyświetl użytkowników</button>
+            <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Sprzedawca" class="btn-akcja">Wyświetl użytkowników</a>
         </div>
     </div>
 
@@ -80,7 +80,7 @@
             <p>Nadaje wszystkie uprawnienia</p>
         </div>
         <div class="karta-prawa">
-            <button class="btn-akcja">Wyświetl użytkowników</button>
+           <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Administrator" class="btn-akcja">Wyświetl użytkowników</a>
         </div>
     </div>
 
@@ -91,7 +91,7 @@
             <p>Przeglądanie historii sprzedaży</p>
         </div>
         <div class="karta-prawa">
-            <button class="btn-akcja">Wyświetl użytkowników</button>
+             <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Kierownik_sprzedaży" class="btn-akcja">Wyświetl użytkowników</a>
         </div>
     </div>
 
