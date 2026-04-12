@@ -38,6 +38,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9yZWplc3RyYWNqYS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/workspaces/testowanie_magazyn/Magazyn/Views/Home/Uprawnienia.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9VcHJhd25pZW5pYS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/workspaces/testowanie_magazyn/Magazyn/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
