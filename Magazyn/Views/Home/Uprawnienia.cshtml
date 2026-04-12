@@ -41,19 +41,20 @@
                 <p>Przeglądaj role i zakres ich uprawnień.</p>
 
                 <div class="lista-uprawnien">
-
-                    <div class="karta-uprawnien">
+                     <div class="karta-uprawnien">
                         <div class="karta-lewa">
-                            <span class="rola-badge rola-magazyn">Pracownik magazynu</span>
-                            <h3>Nadaj uprawnienia</h3>
-                            <p>Możliwość zarejestrowania nowego towaru</p>
+                            <span class="rola-badge rola-admin">Administrator</span>
+                            <h3>Pełny dostęp</h3>
+                            <p>Nadaje wszystkie uprawnienia</p>
                         </div>
                         <div class="karta-prawa">
-                            <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Pracownik magazynu" class="btn-akcja">
+                            <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Administrator" class="btn-akcja">
                                 Wyświetl użytkowników
                             </a>
                         </div>
-                    </div>
+                     </div>
+
+                 
 
                     <div class="karta-uprawnien">
                         <div class="karta-lewa">
@@ -63,6 +64,18 @@
                         </div>
                         <div class="karta-prawa">
                             <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Kierownik magazynu" class="btn-akcja">
+                                Wyświetl użytkowników
+                            </a>
+                        </div>
+                    </div>
+                      <div class="karta-uprawnien">
+                        <div class="karta-lewa">
+                            <span class="rola-badge rola-kierownik-sprzedazy">Kierownik sprzedaży</span>
+                            <h3>Historia sprzedaży</h3>
+                            <p>Przeglądanie historii sprzedaży</p>
+                        </div>
+                        <div class="karta-prawa">
+                            <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Kierownik sprzedazy" class="btn-akcja">
                                 Wyświetl użytkowników
                             </a>
                         </div>
@@ -80,30 +93,14 @@
                             </a>
                         </div>
                     </div>
-
-                    <div class="karta-uprawnien">
+                       <div class="karta-uprawnien">
                         <div class="karta-lewa">
-                            <span class="rola-badge rola-admin">Administrator</span>
-                            <h3>Pełny dostęp</h3>
-                            <p>Nadaje wszystkie uprawnienia</p>
+                            <span class="rola-badge rola-magazyn">Pracownik magazynu</span>
+                            <h3>Akualizacja stanu magazynu</h3>
+                            <p>Możliwość zarejestrowania nowego towaru</p>
                         </div>
                         <div class="karta-prawa">
-                            <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Admin" class="btn-akcja">
-                                Wyświetl użytkowników
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Ta rola MUSI istnieć w tabeli Uprawnienia (Nazwa) żeby działała.
-                         Jeśli nie istnieje, link zwróci 404 (Nie znaleziono roli). -->
-                    <div class="karta-uprawnien">
-                        <div class="karta-lewa">
-                            <span class="rola-badge rola-kierownik-sprzedazy">Kierownik sprzedaży</span>
-                            <h3>Historia sprzedaży</h3>
-                            <p>Przeglądanie historii sprzedaży</p>
-                        </div>
-                        <div class="karta-prawa">
-                            <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Kierownik sprzedaży" class="btn-akcja">
+                            <a asp-controller="Home" asp-action="UsersByRole" asp-route-rola="Pracownik magazynu" class="btn-akcja">
                                 Wyświetl użytkowników
                             </a>
                         </div>
