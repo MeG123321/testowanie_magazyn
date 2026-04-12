@@ -121,7 +121,16 @@ ORDER BY u.id;
                 Rola = r["Rola"]?.ToString()
             });
         }
-
+// lista ról do popupów
+var roles = new List<string>();
+using (var rc = con.CreateCommand())
+{
+    rc.CommandText = @"SELECT Nazwa FROM Uprawnienia ORDER BY Id;";
+    using var rr = rc.ExecuteReader();
+    while (rr.Read())
+        roles.Add(rr["Nazwa"]?.ToString() ?? "");
+}
+ViewBag.Roles = roles;
         return View(results);
     }
 
@@ -786,4 +795,76 @@ VALUES ($pid, $uid);
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+    // ============================================
+// UPRAWNIENIA -> lista użytkowników z daną rolą
+// ============================================
+[HttpGet]
+public IActionResult UsersByRole(string rola)
+{
+    if (string.IsNullOrWhiteSpace(rola))
+        return BadRequest(new { msg = "Brak parametru rola" });
+
+    if (!System.IO.File.Exists(DbPath))
+        return NotFound(new { msg = "Brak bazy", path = DbPath });
+
+    rola = rola.Trim();
+
+    using var con = new SqliteConnection($"Data Source={DbPath}");
+    con.Open();
+
+    // 1) znajdź Id roli
+    long roleId;
+    using (var cmd = con.CreateCommand())
+    {
+        cmd.CommandText = @"SELECT Id FROM Uprawnienia WHERE TRIM(Nazwa) = TRIM($n) LIMIT 1;";
+        cmd.Parameters.AddWithValue("$n", rola);
+        var obj = cmd.ExecuteScalar();
+        if (obj == null)
+            return NotFound(new { msg = "Nie znaleziono roli w tabeli Uprawnienia", rola });
+
+        roleId = Convert.ToInt64(obj);
+    }
+
+    // 2) pobierz użytkowników z tą rolą
+    var results = new List<UserListRowDto>();
+    using (var cmd = con.CreateCommand())
+    {
+        cmd.CommandText = @"
+SELECT u.id,
+       u.username,
+       u.firstName,
+       u.LastName,
+       u.Email,
+       u.pesel,
+       u.Status,
+       $rola AS Rola
+FROM Uzytkownik_Uprawnienia uu
+JOIN Uzytkownicy u ON u.id = uu.uzytkownik_id
+WHERE uu.uprawnienie_id = $rid
+  AND COALESCE(u.czy_zapomniany,0) = 0
+ORDER BY u.LastName, u.firstName, u.username;
+";
+        cmd.Parameters.AddWithValue("$rid", roleId);
+        cmd.Parameters.AddWithValue("$rola", rola);
+
+        using var r = cmd.ExecuteReader();
+        while (r.Read())
+        {
+            results.Add(new UserListRowDto
+            {
+                Id = Convert.ToInt64(r["id"]),
+                Username = r["username"]?.ToString(),
+                FirstName = r["firstName"]?.ToString(),
+                LastName = r["LastName"]?.ToString(),
+                Email = r["Email"]?.ToString(),
+                Pesel = r["pesel"]?.ToString(),
+                Status = r["Status"]?.ToString(),
+                Rola = r["Rola"]?.ToString()
+            });
+        }
+    }
+
+    ViewBag.Rola = rola;
+    return View(results);
+}
 }
