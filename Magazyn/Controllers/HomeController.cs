@@ -403,46 +403,53 @@ ORDER BY id;
     // =========================
     // API: lista zapomnianych (RODO)
     // =========================
-    [HttpGet]
-    public IActionResult ApiForgottenUsers(string? name = null, string? adminId = null)
-    {
-        if (!System.IO.File.Exists(DbPath))
-            return NotFound(new { error = "Brak pliku bazy", path = DbPath });
+   public IActionResult ForgottenUsers(string fname, long? adminId)
+{
+    if (!System.IO.File.Exists(DbPath))
+        return StatusCode(500, new { msg = "Brak bazy", path = DbPath });
 
-        var results = new List<object>();
-        using var con = new SqliteConnection($"Data Source={DbPath}");
-        con.Open();
+    using var con = new SqliteConnection($"Data Source={DbPath}");
+    con.Open();
 
-        using var cmd = con.CreateCommand();
-        cmd.CommandText = @"
-SELECT id,
-       firstName,
-       LastName,
-       DataZapomnienia,
-       ZapomnialUserId
+    var users = new List<UserListRowDto>();
+
+    using var cmd = con.CreateCommand();
+    cmd.CommandText = @"
+SELECT 
+    id,
+    firstName,
+    lastName,
+    DataZapomnienia,
+    ZapomnialUserId
 FROM Uzytkownicy
-WHERE COALESCE(czy_zapomniany,0) = 1
-  AND ($name IS NULL OR LOWER(TRIM(firstName || ' ' || LastName)) LIKE '%' || LOWER(TRIM($name)) || '%')
-  AND ($adminId IS NULL OR CAST(COALESCE(ZapomnialUserId,0) AS TEXT) LIKE '%' || TRIM($adminId) || '%')
-ORDER BY datetime(DataZapomnienia) DESC, id DESC;
+WHERE czy_zapomniany = 1
+    AND (@fname IS NULL OR (firstName || ' ' || lastName) LIKE '%' || @fname || '%')
+    AND (@adminId IS NULL OR ZapomnialUserId = @adminId)
+ORDER BY DataZapomnienia DESC;
 ";
-        cmd.Parameters.AddWithValue("$name", (object?)name ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("$adminId", (object?)adminId ?? DBNull.Value);
 
-        using var r = cmd.ExecuteReader();
-        while (r.Read())
+    cmd.Parameters.AddWithValue("@fname", string.IsNullOrWhiteSpace(fname) ? DBNull.Value : fname);
+    cmd.Parameters.AddWithValue("@adminId", adminId.HasValue ? adminId.Value : DBNull.Value);
+
+    using var rd = cmd.ExecuteReader();
+    while (rd.Read())
+    {
+        users.Add(new UserListRowDto
         {
-            results.Add(new
-            {
-                id = r["id"],
-                fullNameAfterForget = $"{r["firstName"]} {r["LastName"]}",
-                dataZapomnienia = r["DataZapomnienia"],
-                zapomnialUserId = r["ZapomnialUserId"]
-            });
-        }
-
-        return Json(results);
+            Id = rd.GetInt64(0),
+            FirstName = rd.GetString(1),
+            LastName = rd.GetString(2),
+            Status = rd.IsDBNull(3) ? "" : rd.GetString(3), // Data zapomnienia
+            Rola = rd.IsDBNull(4) ? "" : rd.GetInt64(4).ToString() // Admin ID
+        });
     }
+
+    ViewBag.Fname = fname;
+    ViewBag.AdminId = adminId;
+
+    return View(users);
+}
+
 
     // =========================
     // API: jeden user (do ewentualnych popupów)

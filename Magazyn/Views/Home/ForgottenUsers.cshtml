@@ -1,3 +1,4 @@
+@model List<Magazyn.Controllers.HomeController.UserListRowDto>
 @{
     Layout = null;
 }
@@ -24,7 +25,7 @@
                     <li><a asp-controller="Home" asp-action="AdminPanel">Przegląd personelu</a></li>
                     <li><a asp-controller="Home" asp-action="Rejestracja">Rejestracja pracownika</a></li>
                     <li><a asp-controller="Home" asp-action="ForgottenUsers" class="active">Użytkownicy zapomniani (RODO)</a></li>
-                     <li><a asp-controller="Home" asp-action="Uprawnienia">Nadaj Uprawnienia</a></li>
+                    <li><a asp-controller="Home" asp-action="Uprawnienia">Nadaj Uprawnienia</a></li>
                 </ul>
             </nav>
         </aside>
@@ -41,21 +42,21 @@
                 <h2>Użytkownicy zapomniani (RODO)</h2>
 
                 <div class="search-bar">
-                    <form id="forgot-search">
+                    <form method="get" asp-controller="Home" asp-action="ForgottenUsers">
                         <div class="tabelka">
                             <div style="grid-column: span 2;">
                                 <label for="fname">Imię i nazwisko (po zapomnieniu)</label>
-                                <input type="text" id="fname" name="fname" placeholder="np. Abc Xyz">
+                                <input type="text" id="fname" name="fname" value="@ViewBag.Fname" placeholder="np. Abc Xyz">
                             </div>
                             <div>
                                 <label for="adminId">ID admina</label>
-                                <input type="text" id="adminId" name="adminId" placeholder="np. 1">
+                                <input type="text" id="adminId" name="adminId" value="@ViewBag.AdminId" placeholder="np. 1">
                             </div>
                         </div>
 
                         <div class="btn-group">
                             <button type="submit" class="btn-primary">Wyszukaj</button>
-                            <button type="reset" class="btn-secondary">Wyczyść</button>
+                            <a asp-controller="Home" asp-action="ForgottenUsers" class="btn-secondary">Wyczyść</a>
                         </div>
                     </form>
                 </div>
@@ -71,7 +72,33 @@
                                 <th>Akcje</th>
                             </tr>
                         </thead>
-                        <tbody id="forgot-body"></tbody>
+                        <tbody>
+                            @if (Model == null || Model.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="5" style="color:#ff6b6b; font-weight:700;">NIE ZNALEZIONO</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var u in Model)
+                                {
+                                    <tr>
+                                        <td>@u.Id</td>
+                                        <td>@u.FirstName @u.LastName</td>
+                                        <td>@u.Status</td>
+                                        <td>@u.Rola</td>
+                                        <td>
+                                            <button class="btn-secondary"
+                                                    onclick="openForgottenDetails(@u.Id)"
+                                                    style="text-decoration:none; display:inline-block; text-align:center;">
+                                                Szczegóły
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
                     </table>
                 </div>
 
