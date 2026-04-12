@@ -96,7 +96,6 @@
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/3pxq18bujn-{0}-fr7q2aak1r-fr7q2aak1r.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/2zojp3d19z-{0}-07cmql1l3g-07cmql1l3g.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/9gwm5bjsba-{0}-07cmql1l3g-07cmql1l3g.gz
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/4hhxnjr2a1-{0}-9t14uj2hup-9t14uj2hup.gz
 /workspaces/testowanie_magazyn/Magazyn/bin/Debug/net10.0/Microsoft.Data.Sqlite.dll
 /workspaces/testowanie_magazyn/Magazyn/bin/Debug/net10.0/SQLitePCLRaw.batteries_v2.dll
 /workspaces/testowanie_magazyn/Magazyn/bin/Debug/net10.0/SQLitePCLRaw.core.dll
@@ -129,3 +128,4 @@
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/nhwogi5a86-{0}-rp2eshzj93-rp2eshzj93.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/1cnchjg9ei-{0}-knzm3s4id4-knzm3s4id4.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/70in9r9i9u-{0}-7jpn55kiu0-7jpn55kiu0.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/4hhxnjr2a1-{0}-zvxx8xkfak-zvxx8xkfak.gz

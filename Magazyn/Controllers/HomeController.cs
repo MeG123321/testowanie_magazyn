@@ -19,7 +19,7 @@ public class HomeController : Controller
     public IActionResult Index() => View();
     public IActionResult Privacy() => View();
     public IActionResult AdminPanel() => View();
-
+    public IActionResult Uprawnienia() => View();
     // ===== RODO widok =====
     [HttpGet]
     public IActionResult ForgottenUsers() => View();

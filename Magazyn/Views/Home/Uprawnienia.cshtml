@@ -1,3 +1,6 @@
+@{
+    Layout = null;
+}
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -24,13 +27,74 @@
             </nav>
         </aside>
 
-        <main class="main">
-            <header class="header">
-                <div class="info">
-                    <a href="#" id="akcja-wyloguj">Wyloguj</a>
-                    <a href="#">Konto</a>
-                    <a asp-controller="Home" asp-action="Index">Strona Główna</a>
-                </div>
-            </header>
+      <main class="main">
+        <header class="header">
+            <div class="info">
+                <a href="#" id="akcja-wyloguj">Wyloguj</a>
+                <a href="#">Konto</a>
+                <a asp-controller="Home" asp-action="Index">Strona Główna</a>
+            </div>
+        </header>
+
+        <section class="zaw">
+            <h2>Uprawnienia</h2>
+    <p>Przeglądaj role i zakres ich uprawnień.</p>
+            <div class="lista-uprawnien">
+    <div class="karta-uprawnien">
+        <div class="karta-lewa">
+            <span class="rola-badge rola-magazyn">Pracownik magazynu</span>
+            <h3>Nadaj uprawnienia</h3>
+            <p>Możliwość zarejestrowania nowego towaru</p>
+        </div>
+        <div class="karta-prawa">
+            <button class="btn-akcja">Wyświetl użytkowników</button>
+        </div>
+    </div>
+
+    <div class="karta-uprawnien">
+        <div class="karta-lewa">
+            <span class="rola-badge rola-kierownik-mag">Kierownik magazynu</span>
+            <h3>Stany magazynowe</h3>
+            <p>Przeglądanie stanów magazynowych</p>
+        </div>
+        <div class="karta-prawa">
+            <button class="btn-akcja">Wyświetl użytkowników</button>
+        </div>
+    </div>
+
+    <div class="karta-uprawnien">
+        <div class="karta-lewa">
+            <span class="rola-badge rola-sprzedawca">Sprzedawca</span>
+            <h3>Sprzedaż</h3>
+            <p>Rejestracja sprzedaży towarów</p>
+        </div>
+        <div class="karta-prawa">
+            <button class="btn-akcja">Wyświetl użytkowników</button>
+        </div>
+    </div>
+
+    <div class="karta-uprawnien">
+        <div class="karta-lewa">
+            <span class="rola-badge rola-admin">Administrator</span>
+            <h3>Pełny dostęp</h3>
+            <p>Nadaje wszystkie uprawnienia</p>
+        </div>
+        <div class="karta-prawa">
+            <button class="btn-akcja">Wyświetl użytkowników</button>
+        </div>
+    </div>
+
+    <div class="karta-uprawnien">
+        <div class="karta-lewa">
+            <span class="rola-badge rola-kierownik-sprzedazy">Kierownik sprzedaży</span>
+            <h3>Historia sprzedaży</h3>
+            <p>Przeglądanie historii sprzedaży</p>
+        </div>
+        <div class="karta-prawa">
+            <button class="btn-akcja">Wyświetl użytkowników</button>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>
