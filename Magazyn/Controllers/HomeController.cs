@@ -18,6 +18,7 @@ public class HomeController : Controller
 
     public IActionResult Index() => View();
     public IActionResult Privacy() => View();
+    public IActionResult Uprawnienia() => View();
 
     // ============================================
     // DTO: lista (najważniejsze pola)
