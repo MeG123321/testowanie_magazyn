@@ -217,7 +217,7 @@
                             <tr><th>PESEL</th><td>@(string.IsNullOrWhiteSpace(Model.Pesel) ? "-" : Model.Pesel)</td></tr>
                             <tr><th>Data urodzenia</th><td>@(string.IsNullOrWhiteSpace(Model.DataUrodzenia) ? "-" : Model.DataUrodzenia)</td></tr>
                             <tr><th>Nr telefonu</th><td>@(string.IsNullOrWhiteSpace(Model.NrTelefonu) ? "-" : Model.NrTelefonu)</td></tr>
-                            <tr><th>Płeć</th><td>@(string.IsNullOrWhiteSpace(Model.Plec) ? "-" : Model.Plec)</td></tr>
+                           <tr><th>Płeć</th><td>@(Model.Plec == 1 ? "Mężczyzna" : "Kobieta")</td></tr>
 
                             <tr><th>Miejscowość</th><td>@(string.IsNullOrWhiteSpace(Model.Miejscowosc) ? "-" : Model.Miejscowosc)</td></tr>
                             <tr><th>Kod pocztowy</th><td>@(string.IsNullOrWhiteSpace(Model.KodPocztowy) ? "-" : Model.KodPocztowy)</td></tr>
