@@ -18,8 +18,147 @@ public class HomeController : Controller
 
     public IActionResult Index() => View();
     public IActionResult Privacy() => View();
-    public IActionResult AdminPanel() => View();
-    public IActionResult Uprawnienia() => View();
+
+    // ============================================
+    // DTO: lista (najważniejsze pola)
+    // ============================================
+    public class UserListRowDto
+    {
+        public long Id { get; set; }
+        public string? Username { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
+        public string? Pesel { get; set; }
+        public string? Status { get; set; }
+        public string? Rola { get; set; }
+    }
+
+    // ============================================
+    // DTO: szczegóły (pełne)
+    // ============================================
+    public class UserDetailsDto
+    {
+        public long Id { get; set; }
+        public string? Username { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
+        public string? Pesel { get; set; }
+        public string? DataUrodzenia { get; set; }
+        public string? NrTelefonu { get; set; }
+        public string? Plec { get; set; }
+        public string? Status { get; set; }
+        public string? Rola { get; set; }
+        public string? Miejscowosc { get; set; }
+        public string? KodPocztowy { get; set; }
+        public string? Ulica { get; set; }
+        public string? NrPosesji { get; set; }
+        public string? NrLokalu { get; set; }
+    }
+
+    // ============================================
+    // ADMIN PANEL - SERWEROWO (bez JS)
+    // ============================================
+    [HttpGet]
+    public IActionResult AdminPanel(string? login = null, string? name = null, string? pesel = null)
+    {
+        // żeby trzymało wartości w inputach
+        ViewBag.Login = login ?? "";
+        ViewBag.Name = name ?? "";
+        ViewBag.Pesel = pesel ?? "";
+
+        var results = new List<UserListRowDto>();
+
+        if (!System.IO.File.Exists(DbPath))
+            return View(results);
+
+        using var con = new SqliteConnection($"Data Source={DbPath}");
+        con.Open();
+
+        using var cmd = con.CreateCommand();
+        cmd.CommandText = @"
+SELECT ID, Username, FirstName, LastName, Pesel, Email, Status, Rola
+FROM Uzytkownicy
+WHERE COALESCE(Zapomniany,0) = 0
+  AND ($login IS NULL OR $login = '' OR LOWER(TRIM(Username)) LIKE '%' || LOWER(TRIM($login)) || '%')
+  AND ($name  IS NULL OR $name  = '' OR LOWER(TRIM(FirstName || ' ' || LastName)) LIKE '%' || LOWER(TRIM($name)) || '%')
+  AND ($pesel IS NULL OR $pesel = '' OR TRIM(Pesel) LIKE '%' || TRIM($pesel) || '%')
+ORDER BY ID;
+";
+        cmd.Parameters.AddWithValue("$login", login ?? "");
+        cmd.Parameters.AddWithValue("$name", name ?? "");
+        cmd.Parameters.AddWithValue("$pesel", pesel ?? "");
+
+        using var r = cmd.ExecuteReader();
+        while (r.Read())
+        {
+            results.Add(new UserListRowDto
+            {
+                Id = Convert.ToInt64(r["ID"]),
+                Username = r["Username"]?.ToString(),
+                FirstName = r["FirstName"]?.ToString(),
+                LastName = r["LastName"]?.ToString(),
+                Email = r["Email"]?.ToString(),
+                Pesel = r["Pesel"]?.ToString(),
+                Status = r["Status"]?.ToString(),
+                Rola = r["Rola"]?.ToString()
+            });
+        }
+
+        return View(results);
+    }
+
+    // ============================================
+    // SZCZEGÓŁY USERA - SERWEROWO (bez JS)
+    // ============================================
+    [HttpGet]
+    public IActionResult UserDetails(long id)
+    {
+        if (!System.IO.File.Exists(DbPath))
+            return NotFound(new { msg = "Brak bazy", path = DbPath });
+
+        using var con = new SqliteConnection($"Data Source={DbPath}");
+        con.Open();
+
+        using var cmd = con.CreateCommand();
+        cmd.CommandText = @"
+SELECT ID, Username, FirstName, LastName, Pesel, Status, Plec, Rola, DataUrodzenia,
+       Email, NrTelefonu,
+       Miejscowosc, KodPocztowy, NrPosesji, Ulica, NrLokalu
+FROM Uzytkownicy
+WHERE ID = $id
+LIMIT 1;
+";
+        cmd.Parameters.AddWithValue("$id", id);
+
+        using var r = cmd.ExecuteReader();
+        if (!r.Read())
+            return NotFound(new { msg = "Nie znaleziono użytkownika" });
+
+        var u = new UserDetailsDto
+        {
+            Id = Convert.ToInt64(r["ID"]),
+            Username = r["Username"]?.ToString(),
+            FirstName = r["FirstName"]?.ToString(),
+            LastName = r["LastName"]?.ToString(),
+            Pesel = r["Pesel"]?.ToString(),
+            Status = r["Status"]?.ToString(),
+            Plec = r["Plec"]?.ToString(),
+            Rola = r["Rola"]?.ToString(),
+            DataUrodzenia = r["DataUrodzenia"]?.ToString(),
+            Email = r["Email"]?.ToString(),
+            NrTelefonu = r["NrTelefonu"]?.ToString(),
+            Miejscowosc = r["Miejscowosc"]?.ToString(),
+            KodPocztowy = r["KodPocztowy"]?.ToString(),
+            NrPosesji = r["NrPosesji"]?.ToString(),
+            Ulica = r["Ulica"]?.ToString(),
+            NrLokalu = r["NrLokalu"]?.ToString(),
+        };
+
+        return View(u);
+    }
+
     // ===== RODO widok =====
     [HttpGet]
     public IActionResult ForgottenUsers() => View();
@@ -92,7 +231,7 @@ public class HomeController : Controller
             }
         }
 
-        // Pesel unique (bo w schemacie UNIQUE)
+        // Pesel unique
         using (var checkPesel = con.CreateCommand())
         {
             checkPesel.CommandText = @"SELECT COUNT(*) FROM Uzytkownicy WHERE TRIM(Pesel) = TRIM($p);";
@@ -143,8 +282,6 @@ VALUES
 
     // =========================
     // LOGOWANIE
-    // (UWAGA: wymagania RODO mówią, że zapomniany nie ma dostępu.
-    // Jeśli chcesz, dopiszę warunek Zapomniany=0. Teraz zostawiam jak u Ciebie.)
     // =========================
     [HttpPost]
     public IActionResult Login(string username, string password)
@@ -177,7 +314,7 @@ LIMIT 1;
     }
 
     // =========================
-    // PERSONEL: tylko Zapomniany=0
+    // API - zostawiamy (może się przydać gdzie indziej)
     // =========================
     [HttpGet]
     public IActionResult ApiUsers(string? login = null, string? name = null, string? pesel = null)
@@ -220,10 +357,6 @@ ORDER BY ID;
         return Json(results);
     }
 
-    // =========================
-    // RODO: lista zapomnianych (Zapomniany=1)
-    // Wyszukiwanie po "name" (po zapomnieniu) i "adminId"
-    // =========================
     [HttpGet]
     public IActionResult ApiForgottenUsers(string? name = null, string? adminId = null)
     {
@@ -265,9 +398,6 @@ ORDER BY datetime(DataZapomnienia) DESC, ID DESC;
         return Json(results);
     }
 
-    // =========================
-    // JEDEN USER do popupów (działa dla zapomnianych i niezapomnianych)
-    // =========================
     [HttpGet]
     public IActionResult ApiUser(long id)
     {
@@ -321,7 +451,7 @@ LIMIT 1;
     }
 
     // =========================
-    // UPDATE user (edycja)
+    // UPDATE user (edycja) - zostaje jak było
     // =========================
     [HttpPost]
     public IActionResult UpdateUser(UserVm vm)
@@ -399,8 +529,7 @@ WHERE ID = $Id;
     }
 
     // =========================
-    // RODO: zapomnienie usera
-    // adminId dostajesz z query (?adminId=1) - na start.
+    // RODO: zapomnienie usera (zostaje jak było)
     // =========================
     [HttpPost]
     public IActionResult ForgetUser(long id, long adminId)
@@ -437,24 +566,19 @@ WHERE ID = $Id;
             return new string(chars);
         }
 
-        // losowe, ale spełniają walidacje (formaty)
         var newFirst = RandLetters(6);
         var newLast = RandLetters(8);
         var newPesel = RandDigits(11);
 
-        // data urodzenia: YYYY-MM-DD (losowo, byle format poprawny)
         var year = Random.Shared.Next(1950, 2006);
         var month = Random.Shared.Next(1, 13);
         var day = Random.Shared.Next(1, DateTime.DaysInMonth(year, month) + 1);
         var newDob = new DateTime(year, month, day).ToString("yyyy-MM-dd");
 
         var newPlec = Random.Shared.Next(0, 2) == 0 ? "Kobieta" : "Mężczyzna";
-
-        // odebranie dostępu
         var newStatus = "Nieaktywny";
         var newRola = "Zapomniany";
 
-        // też zmieniamy login/email/hasło aby nie było dostępu
         var newUsername = "del_" + RandToken(10);
         var newPassword = RandToken(12);
         var newEmail = $"{RandToken(8)}@example.com";
@@ -502,51 +626,201 @@ WHERE ID = $Id;
         return Ok(new { ok = true });
     }
 
-    // =========================
-// UŻYTKOWNICY WG ROLI (NOWA STRONA)
-// =========================
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+    // ============================================
+// EDYCJA USERA - SERWEROWO (bez JS)
+// ============================================
+
 [HttpGet]
-public IActionResult UsersByRole(string rola)
+public IActionResult EditUser(long id)
 {
     if (!System.IO.File.Exists(DbPath))
-        return NotFound("Brak bazy danych");
-
-    var users = new List<UserVm>();
+        return NotFound(new { msg = "Brak bazy", path = DbPath });
 
     using var con = new SqliteConnection($"Data Source={DbPath}");
     con.Open();
 
     using var cmd = con.CreateCommand();
     cmd.CommandText = @"
-SELECT ID, Username, FirstName, LastName, Email, Rola
+SELECT ID, Username, Password, FirstName, LastName, Pesel, Status, Plec, Rola, DataUrodzenia,
+       Email, NrTelefonu,
+       Miejscowosc, KodPocztowy, NrPosesji, Ulica, NrLokalu
 FROM Uzytkownicy
-WHERE LOWER(TRIM(Rola)) = LOWER(TRIM($rola))
-  AND COALESCE(Zapomniany,0) = 0;
+WHERE ID = $id
+LIMIT 1;
 ";
+    cmd.Parameters.AddWithValue("$id", id);
 
-    cmd.Parameters.AddWithValue("$rola", rola);
+    using var r = cmd.ExecuteReader();
+    if (!r.Read()) return NotFound(new { msg = "Nie znaleziono użytkownika" });
 
-    using var reader = cmd.ExecuteReader();
-    while (reader.Read())
+    var vm = new UserVm
     {
-        users.Add(new UserVm
-        {
-            Id = Convert.ToInt64(reader["ID"]),
-            Username = reader["Username"]?.ToString(),
-            FirstName = reader["FirstName"]?.ToString(),
-            LastName = reader["LastName"]?.ToString(),
-            Email = reader["Email"]?.ToString(),
-            Rola = reader["Rola"]?.ToString()
-        });
-    }
+        Id = Convert.ToInt64(r["ID"]),
+        Username = r["Username"]?.ToString(),
+        Password = r["Password"]?.ToString(),
+        FirstName = r["FirstName"]?.ToString(),
+        LastName = r["LastName"]?.ToString(),
+        Pesel = r["Pesel"]?.ToString(),
+        Status = r["Status"]?.ToString(),
+        Plec = r["Plec"]?.ToString(),
+        Rola = r["Rola"]?.ToString(),
+        DataUrodzenia = r["DataUrodzenia"]?.ToString(),
+        Email = r["Email"]?.ToString(),
+        NrTelefonu = r["NrTelefonu"]?.ToString(),
+        Miejscowosc = r["Miejscowosc"]?.ToString(),
+        KodPocztowy = r["KodPocztowy"]?.ToString(),
+        NrPosesji = r["NrPosesji"]?.ToString(),
+        Ulica = r["Ulica"]?.ToString(),
+        NrLokalu = r["NrLokalu"]?.ToString()
+    };
 
-    ViewBag.Rola = rola;
-    return View(users);
+    return View(vm);
 }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+[HttpPost]
+[ValidateAntiForgeryToken]
+public IActionResult EditUser(UserVm vm)
+{
+    if (!ModelState.IsValid)
+        return View(vm);
+
+    if (!System.IO.File.Exists(DbPath))
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        ModelState.AddModelError("", $"Nie znaleziono bazy danych: {DbPath}");
+        return View(vm);
     }
+
+    // trim (tak jak w UpdateUser)
+    vm.Username = (vm.Username ?? "").Trim();
+    vm.Password = (vm.Password ?? "").Trim();
+    vm.FirstName = (vm.FirstName ?? "").Trim();
+    vm.LastName = (vm.LastName ?? "").Trim();
+    vm.Pesel = (vm.Pesel ?? "").Trim();
+    vm.Status = (vm.Status ?? "").Trim();
+    vm.Plec = (vm.Plec ?? "").Trim();
+    vm.Rola = (vm.Rola ?? "").Trim();
+    vm.DataUrodzenia = (vm.DataUrodzenia ?? "").Trim();
+    vm.Email = (vm.Email ?? "").Trim();
+    vm.NrTelefonu = (vm.NrTelefonu ?? "").Trim();
+    vm.Miejscowosc = (vm.Miejscowosc ?? "").Trim();
+    vm.KodPocztowy = (vm.KodPocztowy ?? "").Trim();
+    vm.NrPosesji = (vm.NrPosesji ?? "").Trim();
+    vm.Ulica = (vm.Ulica ?? "").Trim();
+    vm.NrLokalu = (vm.NrLokalu ?? "").Trim();
+
+    using var con = new SqliteConnection($"Data Source={DbPath}");
+    con.Open();
+
+    using var cmd = con.CreateCommand();
+    cmd.CommandText = @"
+UPDATE Uzytkownicy
+SET Username = $Username,
+    Password = $Password,
+    FirstName = $FirstName,
+    LastName = $LastName,
+    Pesel = $Pesel,
+    Status = $Status,
+    Plec = $Plec,
+    Rola = $Rola,
+    DataUrodzenia = $DataUrodzenia,
+    Email = $Email,
+    NrTelefonu = $NrTelefonu,
+    Miejscowosc = $Miejscowosc,
+    KodPocztowy = $KodPocztowy,
+    NrPosesji = $NrPosesji,
+    Ulica = $Ulica,
+    NrLokalu = $NrLokalu
+WHERE ID = $Id;
+";
+    cmd.Parameters.AddWithValue("$Id", vm.Id);
+    cmd.Parameters.AddWithValue("$Username", vm.Username);
+    cmd.Parameters.AddWithValue("$Password", vm.Password);
+    cmd.Parameters.AddWithValue("$FirstName", vm.FirstName);
+    cmd.Parameters.AddWithValue("$LastName", vm.LastName);
+    cmd.Parameters.AddWithValue("$Pesel", vm.Pesel);
+    cmd.Parameters.AddWithValue("$Status", vm.Status);
+    cmd.Parameters.AddWithValue("$Plec", vm.Plec);
+    cmd.Parameters.AddWithValue("$Rola", vm.Rola);
+    cmd.Parameters.AddWithValue("$DataUrodzenia", vm.DataUrodzenia);
+    cmd.Parameters.AddWithValue("$Email", vm.Email);
+    cmd.Parameters.AddWithValue("$NrTelefonu", vm.NrTelefonu);
+    cmd.Parameters.AddWithValue("$Miejscowosc", vm.Miejscowosc);
+    cmd.Parameters.AddWithValue("$KodPocztowy", vm.KodPocztowy);
+    cmd.Parameters.AddWithValue("$NrPosesji", vm.NrPosesji);
+    cmd.Parameters.AddWithValue("$Ulica", string.IsNullOrWhiteSpace(vm.Ulica) ? DBNull.Value : vm.Ulica);
+    cmd.Parameters.AddWithValue("$NrLokalu", string.IsNullOrWhiteSpace(vm.NrLokalu) ? DBNull.Value : vm.NrLokalu);
+
+    var rows = cmd.ExecuteNonQuery();
+    if (rows == 0)
+    {
+        ModelState.AddModelError("", "Nie znaleziono użytkownika.");
+        return View(vm);
+    }
+
+    return RedirectToAction(nameof(UserDetails), new { id = vm.Id });
+}
+// ============================================
+// ZAPOMNIJ z widoku szczegółów (bez JS)
+// ============================================
+[HttpPost]
+[ValidateAntiForgeryToken]
+public IActionResult ForgetUserFromDetails(long id, long adminId)
+{
+    // używamy Twojej istniejącej metody ForgetUser (żeby logika była w jednym miejscu)
+    var result = ForgetUser(id, adminId);
+
+    // jeśli ok -> wróć do listy personelu
+    if (result is OkObjectResult)
+        return RedirectToAction(nameof(AdminPanel));
+
+    // jeśli błąd -> pokaż błąd (albo przekieruj do szczegółów)
+    return result;
+}
+
+// ============================================
+// ZMIANA ROLI (popup "Nadaj uprawnienia", bez JS)
+// ============================================
+[HttpPost]
+[ValidateAntiForgeryToken]
+public IActionResult SetRole(long id, string rola)
+{
+    if (string.IsNullOrWhiteSpace(rola))
+        return BadRequest(new { msg = "Brak roli" });
+
+    if (!System.IO.File.Exists(DbPath))
+        return StatusCode(500, new { msg = "Brak bazy", path = DbPath });
+
+    // prosta walidacja whitelistą ról
+    var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "Admin",
+        "Kierownik magazynu",
+        "Sprzedawca",
+        "Pracownik magazynu"
+    };
+    if (!allowed.Contains(rola))
+        return BadRequest(new { msg = "Nieprawidłowa rola" });
+
+    using var con = new SqliteConnection($"Data Source={DbPath}");
+    con.Open();
+
+    using var cmd = con.CreateCommand();
+    cmd.CommandText = @"
+UPDATE Uzytkownicy
+SET Rola = $Rola
+WHERE ID = $Id;
+";
+    cmd.Parameters.AddWithValue("$Id", id);
+    cmd.Parameters.AddWithValue("$Rola", rola.Trim());
+
+    var rows = cmd.ExecuteNonQuery();
+    if (rows == 0) return NotFound(new { msg = "Nie znaleziono użytkownika" });
+
+    return RedirectToAction(nameof(UserDetails), new { id });
+}
 }

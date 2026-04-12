@@ -1,3 +1,4 @@
+@model List<Magazyn.Controllers.HomeController.UserListRowDto>
 @{
     Layout = null; // usuń jeśli używasz _Layout.cshtml
 }
@@ -12,7 +13,6 @@
     <link rel="stylesheet" href="~/css/style.css" />
 
     <script defer src="~/js/script.js"></script>
-    <script defer src="~/js/adminpanel-users.js"></script>
 </head>
 
 <body data-home-url='@Url.Action("Index", "Home")'>
@@ -29,7 +29,7 @@
                         <a asp-controller="Home" asp-action="Rejestracja">Rejestracja pracownika</a>
                     </li>
                     <li><a asp-controller="Home" asp-action="ForgottenUsers">Użytkownicy zapomniani (RODO)</a></li>
-                     <li><a asp-controller="Home" asp-action="Uprawnienia">Nadaj Uprawnienia</a></li>
+                    <li><a asp-controller="Home" asp-action="Uprawnienia">Nadaj Uprawnienia</a></li>
                 </ul>
             </nav>
         </aside>
@@ -47,25 +47,27 @@
                 <h2>Baza pracowników - Magazyn GiTA</h2>
 
                 <div class="search-bar">
-                    <form id="emp-search">
+                    <form method="get" asp-controller="Home" asp-action="AdminPanel">
                         <div class="tabelka">
                             <div>
                                 <label for="login">Login</label>
-                                <input type="text" id="login" name="login" placeholder="Podaj login użytkownika">
+                                <input type="text" id="login" name="login" value="@ViewBag.Login" placeholder="Podaj login użytkownika">
                             </div>
                             <div>
                                 <label for="name">Imię i Nazwisko</label>
-                                <input type="text" id="name" name="name" placeholder="Podaj imię lub nazwisko użytkownika">
+                                <input type="text" id="name" name="name" value="@ViewBag.Name" placeholder="Podaj imię lub nazwisko użytkownika">
                             </div>
                             <div>
                                 <label for="pesel">PESEL</label>
-                                <input type="text" id="pesel" name="pesel" maxlength="11" placeholder="Ciąg 11 liczb">
+                                <input type="text" id="pesel" name="pesel" value="@ViewBag.Pesel" maxlength="11" placeholder="Ciąg 11 liczb">
                             </div>
                         </div>
 
                         <div class="btn-group">
                             <button type="submit" class="btn-primary">Wyszukaj</button>
-                            <button type="reset" class="btn-secondary">Wyczyść</button>
+                            <a class="btn-secondary"
+                               asp-controller="Home" asp-action="AdminPanel"
+                               style="text-decoration:none; display:inline-block; text-align:center;">Wyczyść</a>
                         </div>
                     </form>
                 </div>
@@ -79,144 +81,47 @@
                                 <th>Nazwisko</th>
                                 <th>Email</th>
                                 <th>PESEL</th>
+                                <th>Status</th>
+                                <th>Rola</th>
                                 <th>Akcje</th>
                             </tr>
                         </thead>
-                        <tbody id="bd-dane"></tbody>
+                        <tbody>
+                            @if (Model == null || Model.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="8" style="color:#ff6b6b; font-weight:700;">NIE ZNALEZIONO</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var u in Model)
+                                {
+                                    <tr>
+                                        <td>@u.Username</td>
+                                        <td>@u.FirstName</td>
+                                        <td>@u.LastName</td>
+                                        <td>@u.Email</td>
+                                        <td>@u.Pesel</td>
+                                        <td>@u.Status</td>
+                                        <td>@u.Rola</td>
+                                        <td>
+                                            <a class="btn-secondary"
+                                               asp-controller="Home"
+                                               asp-action="UserDetails"
+                                               asp-route-id="@u.Id"
+                                               style="text-decoration:none; display:inline-block; text-align:center;">
+                                                Szczegóły
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
                     </table>
                 </div>
-                <div id="status-wyszukiwania" style="margin-top:10px; color:#ff6b6b; font-size:12px; font-weight:700;"></div>
             </section>
         </main>
-    </div>
-
-    <!-- ===== POPUP: SZCZEGÓŁY ===== -->
-    <div id="modal-details" class="tlo-okienka" style="display:none;">
-        <div class="ramka-okienka" style="max-width: 900px; width: 95%;">
-            <span class="zamknij-x" data-close-modal="modal-details">&times;</span>
-            <h2 style="margin-top:0; color:white;">Szczegóły użytkownika</h2>
-
-            <div id="details-loading" style="color:#57ab5a; font-size:12px;">Ładowanie...</div>
-
-            <div class="tabelka-wyniki" style="margin-top:10px;">
-                <table>
-                    <tbody id="details-body"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== POPUP: EDYCJA ===== -->
-    <div id="modal-edit" class="tlo-okienka" style="display:none;">
-        <div class="ramka-okienka" style="max-width: 900px; width: 95%;">
-            <span class="zamknij-x" data-close-modal="modal-edit">&times;</span>
-            <h2 style="margin-top:0; color:white;">Edycja użytkownika</h2>
-
-            <div id="edit-msg" style="font-size:12px; margin-bottom:10px;"></div>
-
-            <form id="edit-form" class="form-rejestracja">
-                <input type="hidden" id="edit-id" name="Id" />
-
-                <div class="tabelka">
-                    <div>
-                        <label>Login (5-20 znaków)</label>
-                        <input type="text" id="edit-username" name="Username" required minlength="5" maxlength="20">
-                    </div>
-
-                    <div>
-                        <label>Hasło</label>
-                        <input type="text" id="edit-password" name="Password" required minlength="8" maxlength="15">
-                    </div>
-
-                    <div>
-                        <label>Imię</label>
-                        <input type="text" id="edit-firstName" name="FirstName" required>
-                    </div>
-
-                    <div>
-                        <label>Nazwisko</label>
-                        <input type="text" id="edit-lastName" name="LastName" required>
-                    </div>
-
-                    <div>
-                        <label>Email</label>
-                        <input type="email" id="edit-email" name="Email" required>
-                    </div>
-
-                    <div>
-                        <label>PESEL</label>
-                        <input type="text" id="edit-pesel" name="Pesel" required maxlength="11" inputmode="numeric" pattern="\d{11}">
-                    </div>
-
-                    <div>
-                        <label>Data urodzenia</label>
-                        <input type="date" id="edit-dataUrodzenia" name="DataUrodzenia" required>
-                    </div>
-
-                    <div>
-                        <label>Nr telefonu</label>
-                        <input type="text" id="edit-phone" name="NrTelefonu" required maxlength="9" inputmode="numeric" pattern="\d{9}">
-                    </div>
-
-                    <div>
-                        <label>Płeć</label>
-                        <select id="edit-plec" name="Plec" required>
-                            <option value="Kobieta">Kobieta</option>
-                            <option value="Mężczyzna">Mężczyzna</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label>Status</label>
-                        <select id="edit-status" name="Status" required>
-                            <option value="Aktywny">Aktywny</option>
-                            <option value="Nieaktywny">Nieaktywny</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label>Rola</label>
-                        <select id="edit-rola" name="Rola" required>
-                            <option value="Użytkownik">Użytkownik</option>
-                            <option value="Moderator">Moderator</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Brak">Brak</option>
-                            <option value="Zapomniany">Zapomniany</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label>Miejscowość</label>
-                        <input type="text" id="edit-miejscowosc" name="Miejscowosc" required>
-                    </div>
-
-                    <div>
-                        <label>Kod pocztowy</label>
-                        <input type="text" id="edit-kod" name="KodPocztowy" required pattern="\d{2}-\d{3}">
-                    </div>
-
-                    <div>
-                        <label>Ulica (opcjonalnie)</label>
-                        <input type="text" id="edit-ulica" name="Ulica">
-                    </div>
-
-                    <div>
-                        <label>Nr posesji</label>
-                        <input type="text" id="edit-nrposesji" name="NrPosesji" required>
-                    </div>
-
-                    <div>
-                        <label>Nr lokalu (opcjonalnie)</label>
-                        <input type="text" id="edit-nrlokalu" name="NrLokalu">
-                    </div>
-                </div>
-
-                <div class="btn-group" style="margin-top: 30px;">
-                    <button type="submit" class="btn-primary">Zapisz</button>
-                    <button type="button" class="btn-secondary" data-close-modal="modal-edit">Anuluj</button>
-                </div>
-            </form>
-        </div>
     </div>
 </body>
 </html>

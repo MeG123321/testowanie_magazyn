@@ -26,6 +26,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9BZG1pblBhbmVsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/workspaces/testowanie_magazyn/Magazyn/Views/Home/EditUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9FZGl0VXNlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/workspaces/testowanie_magazyn/Magazyn/Views/Home/ForgottenUsers.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Gb3Jnb3R0ZW5Vc2Vycy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -40,6 +44,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/workspaces/testowanie_magazyn/Magazyn/Views/Home/Uprawnienia.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9VcHJhd25pZW5pYS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/testowanie_magazyn/Magazyn/Views/Home/UserDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Vc2VyRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/workspaces/testowanie_magazyn/Magazyn/Views/Shared/Error.cshtml]
