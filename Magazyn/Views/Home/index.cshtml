@@ -15,7 +15,7 @@
     <script defer src="~/js/script.js"></script>
 </head>
 
-<body data-admin-url='@Url.Action("AdminPanel", "Uzytkownicy")' data-home-url='@Url.Action("Index", "Home")'>
+<body data-admin-url='@Url.Action("AdminPanel", "Uzytkownicy")' data-home-url='@Url.Action("Index", "Home")' data-login-url='@Url.Action("Login", "Account")'>
     <div class="Wrapper">
         <aside class="panelbok">
             <div class="logo"><h1>Magazyn GiTA</h1></div>
@@ -49,6 +49,7 @@
             <h2 style="margin-top:0; color: white;">Logowanie</h2>
 
             <form id="formularz-logowania">
+                @Html.AntiForgeryToken()
                 <input type="text" id="input-login" placeholder="Login" required>
                 <input type="password" id="input-haslo" placeholder="Hasło" required>
                 <button type="submit" class="przycisk-wyslij" style="margin-top:20px;">Wejdź</button>
