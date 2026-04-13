@@ -46,7 +46,11 @@
                 <h2>Edycja użytkownika: @Model.FirstName @Model.LastName</h2>
 
                 <div class="search-bar">
-                    <form asp-controller="Uzytkownicy" asp-action="EditUser" method="post" class="form-rejestracja">
+                    <form asp-controller="Uzytkownicy"
+                          asp-action="EditUser"
+                          asp-route-id="@Model.Id"
+                          method="post"
+                          class="form-rejestracja">
                         @Html.AntiForgeryToken()
 
                         <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
@@ -64,6 +68,8 @@
                                 <label asp-for="Password">Hasło</label>
                                 <input asp-for="Password"
                                        type="password"
+                                       value=""
+                                       autocomplete="new-password"
                                        placeholder="Zostaw puste, jeśli nie zmieniasz hasła" />
                                 <span asp-validation-for="Password" class="field-error"></span>
                             </div>
