@@ -92,7 +92,7 @@ public class UzytkownicyController : Controller
             SL(User.Identity?.Name), SL(login), SL(name), SL(pesel), HttpContext.Connection.RemoteIpAddress);
 
         ViewBag.Login = login ?? "";
-        ViewBag.Name  = name  ?? "";
+        ViewBag.Name = name ?? "";
         ViewBag.Pesel = pesel ?? "";
 
         var userList = new List<UserListRowDto>();
@@ -125,7 +125,7 @@ GROUP BY u.id, u.username, u.firstName, u.LastName, u.Email, u.pesel
 ORDER BY u.id;
 ";
         command.Parameters.AddWithValue("$login", login ?? "");
-        command.Parameters.AddWithValue("$name",  name  ?? "");
+        command.Parameters.AddWithValue("$name", name ?? "");
         command.Parameters.AddWithValue("$pesel", pesel ?? "");
 
         using var dbReader = command.ExecuteReader();
@@ -133,14 +133,14 @@ ORDER BY u.id;
         {
             userList.Add(new UserListRowDto
             {
-                Id        = Convert.ToInt64(dbReader["id"]),
-                Username  = dbReader["username"]?.ToString(),
+                Id = Convert.ToInt64(dbReader["id"]),
+                Username = dbReader["username"]?.ToString(),
                 FirstName = dbReader["firstName"]?.ToString(),
-                LastName  = dbReader["LastName"]?.ToString(),
-                Email     = dbReader["Email"]?.ToString(),
-                Pesel     = dbReader["pesel"]?.ToString(),
-                Status    = dbReader["Status"]?.ToString(),
-                Rola      = dbReader["Rola"]?.ToString()
+                LastName = dbReader["LastName"]?.ToString(),
+                Email = dbReader["Email"]?.ToString(),
+                Pesel = dbReader["pesel"]?.ToString(),
+                Status = dbReader["Status"]?.ToString(),
+                Rola = dbReader["Rola"]?.ToString()
             });
         }
 
@@ -202,21 +202,21 @@ LIMIT 1;
 
         var userDetails = new UserDetailsDto
         {
-            Id           = Convert.ToInt64(dbReader["id"]),
-            Username     = dbReader["username"]?.ToString(),
-            FirstName    = dbReader["firstName"]?.ToString(),
-            LastName     = dbReader["LastName"]?.ToString(),
-            Pesel        = dbReader["pesel"]?.ToString(),
-            Status       = dbReader["Status"]?.ToString(),
-            Plec         = dbReader["Plec"] == DBNull.Value ? 0 : Convert.ToInt32(dbReader["Plec"]),
-            Rola         = dbReader["Rola"]?.ToString(),
+            Id = Convert.ToInt64(dbReader["id"]),
+            Username = dbReader["username"]?.ToString(),
+            FirstName = dbReader["firstName"]?.ToString(),
+            LastName = dbReader["LastName"]?.ToString(),
+            Pesel = dbReader["pesel"]?.ToString(),
+            Status = dbReader["Status"]?.ToString(),
+            Plec = dbReader["Plec"] == DBNull.Value ? 0 : Convert.ToInt32(dbReader["Plec"]),
+            Rola = dbReader["Rola"]?.ToString(),
             DataUrodzenia = dbReader["DataUrodzenia"]?.ToString(),
-            NrTelefonu   = dbReader["NrTelefonu"]?.ToString(),
-            Miejscowosc  = dbReader["Miejscowosc"]?.ToString(),
-            KodPocztowy  = dbReader["KodPocztowy"]?.ToString(),
-            Ulica        = dbReader["Ulica"]?.ToString(),
-            NrPosesji    = dbReader["numer_posesji"]?.ToString(),
-            NrLokalu     = dbReader["NrLokalu"]?.ToString(),
+            NrTelefonu = dbReader["NrTelefonu"]?.ToString(),
+            Miejscowosc = dbReader["Miejscowosc"]?.ToString(),
+            KodPocztowy = dbReader["KodPocztowy"]?.ToString(),
+            Ulica = dbReader["Ulica"]?.ToString(),
+            NrPosesji = dbReader["numer_posesji"]?.ToString(),
+            NrLokalu = dbReader["NrLokalu"]?.ToString(),
         };
 
         return View(userDetails);
@@ -250,21 +250,24 @@ LIMIT 1;
             SL(User.Identity?.Name), SL(dto.Username), HttpContext.Connection.RemoteIpAddress);
 
         // Przycinamy białe znaki ze wszystkich pól tekstowych przed zapisem do bazy
-        dto.Username     = (dto.Username     ?? "").Trim();
-        dto.Password     = (dto.Password     ?? "").Trim();
-        dto.FirstName    = (dto.FirstName    ?? "").Trim();
-        dto.LastName     = (dto.LastName     ?? "").Trim();
-        dto.Pesel        = (dto.Pesel        ?? "").Trim();
-        dto.Status       = (dto.Status       ?? "").Trim();
-        dto.Plec         = (dto.Plec         ?? "").Trim();
-        dto.DataUrodzenia = (dto.DataUrodzenia ?? "").Trim();
-        dto.Email        = (dto.Email        ?? "").Trim();
-        dto.NrTelefonu   = (dto.NrTelefonu   ?? "").Trim();
-        dto.Miejscowosc  = (dto.Miejscowosc  ?? "").Trim();
-        dto.KodPocztowy  = (dto.KodPocztowy  ?? "").Trim();
-        dto.NrPosesji    = (dto.NrPosesji    ?? "").Trim();
-        dto.Ulica        = (dto.Ulica        ?? "").Trim();
-        dto.NrLokalu     = (dto.NrLokalu     ?? "").Trim();
+        dto.Username = (dto.Username ?? "").Trim();
+        dto.Password = (dto.Password ?? "").Trim();
+        dto.FirstName = (dto.FirstName ?? "").Trim();
+        dto.LastName = (dto.LastName ?? "").Trim();
+        dto.Pesel = (dto.Pesel ?? "").Trim();
+        dto.Status = (dto.Status ?? "").Trim();
+        dto.Plec = (dto.Plec ?? "").Trim();
+        // dto.DataUrodzenia - DateOnly? -> nie trimujemy
+        dto.Email = (dto.Email ?? "").Trim();
+        dto.NrTelefonu = (dto.NrTelefonu ?? "").Trim();
+        dto.Miejscowosc = (dto.Miejscowosc ?? "").Trim();
+        dto.KodPocztowy = (dto.KodPocztowy ?? "").Trim();
+        dto.NrPosesji = (dto.NrPosesji ?? "").Trim();
+        dto.Ulica = (dto.Ulica ?? "").Trim();
+        dto.NrLokalu = (dto.NrLokalu ?? "").Trim();
+
+        // SQLite trzyma datę jako TEXT -> zapisujmy yyyy-MM-dd
+        var dataUrodzeniaStr = dto.DataUrodzenia?.ToString("yyyy-MM-dd");
 
         using var connection = Db.OpenConnection(DbPath);
 
@@ -320,21 +323,26 @@ VALUES
      NULL, 0, $dataUrodzenia, NULL, $password, $kodPocztowy,
      0, $nrPosesji, NULL, $status);
 ";
-            insertCommand.Parameters.AddWithValue("$email",        dto.Email);
-            insertCommand.Parameters.AddWithValue("$firstName",    dto.FirstName);
-            insertCommand.Parameters.AddWithValue("$username",     dto.Username);
-            insertCommand.Parameters.AddWithValue("$miejscowosc",  dto.Miejscowosc);
-            insertCommand.Parameters.AddWithValue("$lastName",     dto.LastName);
-            insertCommand.Parameters.AddWithValue("$nrLokalu",     string.IsNullOrWhiteSpace(dto.NrLokalu) ? DBNull.Value : dto.NrLokalu);
-            insertCommand.Parameters.AddWithValue("$pesel",        dto.Pesel);
-            insertCommand.Parameters.AddWithValue("$plec",         PlecToInt(dto.Plec));
-            insertCommand.Parameters.AddWithValue("$nrTelefonu",   dto.NrTelefonu);
-            insertCommand.Parameters.AddWithValue("$ulica",        string.IsNullOrWhiteSpace(dto.Ulica) ? DBNull.Value : dto.Ulica);
-            insertCommand.Parameters.AddWithValue("$dataUrodzenia", dto.DataUrodzenia);
-            insertCommand.Parameters.AddWithValue("$password",     string.IsNullOrWhiteSpace(dto.Password) ? DBNull.Value : dto.Password);
-            insertCommand.Parameters.AddWithValue("$kodPocztowy",  dto.KodPocztowy);
-            insertCommand.Parameters.AddWithValue("$nrPosesji",    dto.NrPosesji);
-            insertCommand.Parameters.AddWithValue("$status",       StatusToInt(dto.Status));
+            insertCommand.Parameters.AddWithValue("$email", dto.Email);
+            insertCommand.Parameters.AddWithValue("$firstName", dto.FirstName);
+            insertCommand.Parameters.AddWithValue("$username", dto.Username);
+            insertCommand.Parameters.AddWithValue("$miejscowosc", dto.Miejscowosc);
+            insertCommand.Parameters.AddWithValue("$lastName", dto.LastName);
+            insertCommand.Parameters.AddWithValue("$nrLokalu", string.IsNullOrWhiteSpace(dto.NrLokalu) ? DBNull.Value : dto.NrLokalu);
+            insertCommand.Parameters.AddWithValue("$pesel", dto.Pesel);
+            insertCommand.Parameters.AddWithValue("$plec", PlecToInt(dto.Plec));
+            insertCommand.Parameters.AddWithValue("$nrTelefonu", dto.NrTelefonu);
+            insertCommand.Parameters.AddWithValue("$ulica", string.IsNullOrWhiteSpace(dto.Ulica) ? DBNull.Value : dto.Ulica);
+
+            insertCommand.Parameters.AddWithValue(
+                "$dataUrodzenia",
+                string.IsNullOrWhiteSpace(dataUrodzeniaStr) ? DBNull.Value : dataUrodzeniaStr
+            );
+
+            insertCommand.Parameters.AddWithValue("$password", string.IsNullOrWhiteSpace(dto.Password) ? DBNull.Value : dto.Password);
+            insertCommand.Parameters.AddWithValue("$kodPocztowy", dto.KodPocztowy);
+            insertCommand.Parameters.AddWithValue("$nrPosesji", dto.NrPosesji);
+            insertCommand.Parameters.AddWithValue("$status", StatusToInt(dto.Status));
             insertCommand.ExecuteNonQuery();
         }
 
@@ -407,22 +415,22 @@ LIMIT 1;
 
         var viewModel = new UserVm
         {
-            Id           = Convert.ToInt64(dbReader["id"]),
-            Username     = dbReader["username"]?.ToString()    ?? "",
-            Password     = dbReader["Password"]?.ToString()    ?? "",
-            FirstName    = dbReader["firstName"]?.ToString()   ?? "",
-            LastName     = dbReader["LastName"]?.ToString()    ?? "",
-            Pesel        = dbReader["pesel"]?.ToString()       ?? "",
-            Status       = StatusToText(dbReader["Status"]),
-            Plec         = PlecToText(dbReader["Plec"] == DBNull.Value ? 0 : Convert.ToInt32(dbReader["Plec"])),
+            Id = Convert.ToInt64(dbReader["id"]),
+            Username = dbReader["username"]?.ToString() ?? "",
+            Password = dbReader["Password"]?.ToString() ?? "",
+            FirstName = dbReader["firstName"]?.ToString() ?? "",
+            LastName = dbReader["LastName"]?.ToString() ?? "",
+            Pesel = dbReader["pesel"]?.ToString() ?? "",
+            Status = StatusToText(dbReader["Status"]),
+            Plec = PlecToText(dbReader["Plec"] == DBNull.Value ? 0 : Convert.ToInt32(dbReader["Plec"])),
             DataUrodzenia = dbReader["DataUrodzenia"]?.ToString() ?? "",
-            Email        = dbReader["Email"]?.ToString()       ?? "",
-            NrTelefonu   = dbReader["NrTelefonu"]?.ToString()  ?? "",
-            Miejscowosc  = dbReader["Miejscowosc"]?.ToString() ?? "",
-            KodPocztowy  = dbReader["KodPocztowy"]?.ToString() ?? "",
-            NrPosesji    = dbReader["numer_posesji"]?.ToString() ?? "",
-            Ulica        = dbReader["Ulica"]?.ToString(),
-            NrLokalu     = dbReader["NrLokalu"]?.ToString()
+            Email = dbReader["Email"]?.ToString() ?? "",
+            NrTelefonu = dbReader["NrTelefonu"]?.ToString() ?? "",
+            Miejscowosc = dbReader["Miejscowosc"]?.ToString() ?? "",
+            KodPocztowy = dbReader["KodPocztowy"]?.ToString() ?? "",
+            NrPosesji = dbReader["numer_posesji"]?.ToString() ?? "",
+            Ulica = dbReader["Ulica"]?.ToString(),
+            NrLokalu = dbReader["NrLokalu"]?.ToString()
         };
 
         return View(viewModel);
@@ -448,21 +456,21 @@ LIMIT 1;
 
         _logger.LogInformation("[AdminAccess] '{User}' edytuje użytkownika id={TargetId} IP={RemoteIp}",
             SL(User.Identity?.Name), viewModel.Id, HttpContext.Connection.RemoteIpAddress);
-        viewModel.Username     = (viewModel.Username     ?? "").Trim();
-        viewModel.Password     = (viewModel.Password     ?? "").Trim();
-        viewModel.FirstName    = (viewModel.FirstName    ?? "").Trim();
-        viewModel.LastName     = (viewModel.LastName     ?? "").Trim();
-        viewModel.Pesel        = (viewModel.Pesel        ?? "").Trim();
-        viewModel.Status       = (viewModel.Status       ?? "").Trim();
-        viewModel.Plec         = (viewModel.Plec         ?? "").Trim();
+        viewModel.Username = (viewModel.Username ?? "").Trim();
+        viewModel.Password = (viewModel.Password ?? "").Trim();
+        viewModel.FirstName = (viewModel.FirstName ?? "").Trim();
+        viewModel.LastName = (viewModel.LastName ?? "").Trim();
+        viewModel.Pesel = (viewModel.Pesel ?? "").Trim();
+        viewModel.Status = (viewModel.Status ?? "").Trim();
+        viewModel.Plec = (viewModel.Plec ?? "").Trim();
         viewModel.DataUrodzenia = (viewModel.DataUrodzenia ?? "").Trim();
-        viewModel.Email        = (viewModel.Email        ?? "").Trim();
-        viewModel.NrTelefonu   = (viewModel.NrTelefonu   ?? "").Trim();
-        viewModel.Miejscowosc  = (viewModel.Miejscowosc  ?? "").Trim();
-        viewModel.KodPocztowy  = (viewModel.KodPocztowy  ?? "").Trim();
-        viewModel.NrPosesji    = (viewModel.NrPosesji    ?? "").Trim();
-        viewModel.Ulica        = (viewModel.Ulica        ?? "").Trim();
-        viewModel.NrLokalu     = (viewModel.NrLokalu     ?? "").Trim();
+        viewModel.Email = (viewModel.Email ?? "").Trim();
+        viewModel.NrTelefonu = (viewModel.NrTelefonu ?? "").Trim();
+        viewModel.Miejscowosc = (viewModel.Miejscowosc ?? "").Trim();
+        viewModel.KodPocztowy = (viewModel.KodPocztowy ?? "").Trim();
+        viewModel.NrPosesji = (viewModel.NrPosesji ?? "").Trim();
+        viewModel.Ulica = (viewModel.Ulica ?? "").Trim();
+        viewModel.NrLokalu = (viewModel.NrLokalu ?? "").Trim();
 
         using var connection = Db.OpenConnection(DbPath);
         using var command = connection.CreateCommand();
@@ -488,22 +496,22 @@ SET username      = $username,
     NrLokalu      = $nrLokalu
 WHERE id = $id;
 ";
-        command.Parameters.AddWithValue("$id",           viewModel.Id);
-        command.Parameters.AddWithValue("$username",     viewModel.Username);
-        command.Parameters.AddWithValue("$password",     string.IsNullOrWhiteSpace(viewModel.Password) ? DBNull.Value : viewModel.Password);
-        command.Parameters.AddWithValue("$firstName",    viewModel.FirstName);
-        command.Parameters.AddWithValue("$lastName",     viewModel.LastName);
-        command.Parameters.AddWithValue("$pesel",        viewModel.Pesel);
-        command.Parameters.AddWithValue("$status",       StatusToInt(viewModel.Status));
-        command.Parameters.AddWithValue("$plec",         PlecToInt(viewModel.Plec));
+        command.Parameters.AddWithValue("$id", viewModel.Id);
+        command.Parameters.AddWithValue("$username", viewModel.Username);
+        command.Parameters.AddWithValue("$password", string.IsNullOrWhiteSpace(viewModel.Password) ? DBNull.Value : viewModel.Password);
+        command.Parameters.AddWithValue("$firstName", viewModel.FirstName);
+        command.Parameters.AddWithValue("$lastName", viewModel.LastName);
+        command.Parameters.AddWithValue("$pesel", viewModel.Pesel);
+        command.Parameters.AddWithValue("$status", StatusToInt(viewModel.Status));
+        command.Parameters.AddWithValue("$plec", PlecToInt(viewModel.Plec));
         command.Parameters.AddWithValue("$dataUrodzenia", viewModel.DataUrodzenia);
-        command.Parameters.AddWithValue("$email",        viewModel.Email);
-        command.Parameters.AddWithValue("$nrTelefonu",   viewModel.NrTelefonu);
-        command.Parameters.AddWithValue("$miejscowosc",  viewModel.Miejscowosc);
-        command.Parameters.AddWithValue("$kodPocztowy",  viewModel.KodPocztowy);
-        command.Parameters.AddWithValue("$nrPosesji",    viewModel.NrPosesji);
-        command.Parameters.AddWithValue("$ulica",        string.IsNullOrWhiteSpace(viewModel.Ulica) ? DBNull.Value : viewModel.Ulica);
-        command.Parameters.AddWithValue("$nrLokalu",     string.IsNullOrWhiteSpace(viewModel.NrLokalu) ? DBNull.Value : viewModel.NrLokalu);
+        command.Parameters.AddWithValue("$email", viewModel.Email);
+        command.Parameters.AddWithValue("$nrTelefonu", viewModel.NrTelefonu);
+        command.Parameters.AddWithValue("$miejscowosc", viewModel.Miejscowosc);
+        command.Parameters.AddWithValue("$kodPocztowy", viewModel.KodPocztowy);
+        command.Parameters.AddWithValue("$nrPosesji", viewModel.NrPosesji);
+        command.Parameters.AddWithValue("$ulica", string.IsNullOrWhiteSpace(viewModel.Ulica) ? DBNull.Value : viewModel.Ulica);
+        command.Parameters.AddWithValue("$nrLokalu", string.IsNullOrWhiteSpace(viewModel.NrLokalu) ? DBNull.Value : viewModel.NrLokalu);
 
         var affectedRows = command.ExecuteNonQuery();
         if (affectedRows == 0)
@@ -528,7 +536,7 @@ WHERE id = $id;
     [HttpGet]
     public IActionResult ForgottenUsers(string? fname = null, long? adminId = null)
     {
-        ViewBag.Fname   = fname   ?? "";
+        ViewBag.Fname = fname ?? "";
         ViewBag.AdminId = adminId?.ToString() ?? "";
 
         var forgottenList = new List<ForgottenRowDto>();
@@ -554,20 +562,20 @@ WHERE czy_zapomniany = 1
   AND ($adminId IS NULL OR ZapomnialUserId = $adminId)
 ORDER BY DataZapomnienia DESC;
 ";
-        command.Parameters.AddWithValue("$fname",   string.IsNullOrWhiteSpace(fname) ? "" : fname.Trim());
+        command.Parameters.AddWithValue("$fname", string.IsNullOrWhiteSpace(fname) ? "" : fname.Trim());
         command.Parameters.AddWithValue("$adminId", adminId.HasValue ? adminId.Value : DBNull.Value);
 
         using var dbReader = command.ExecuteReader();
         while (dbReader.Read())
         {
             var firstName = dbReader.IsDBNull(1) ? "" : dbReader.GetString(1);
-            var lastName  = dbReader.IsDBNull(2) ? "" : dbReader.GetString(2);
+            var lastName = dbReader.IsDBNull(2) ? "" : dbReader.GetString(2);
             forgottenList.Add(new ForgottenRowDto
             {
-                Id                  = dbReader.GetInt64(0),
-                FullNameAfterForget  = $"{firstName} {lastName}".Trim(),
-                DataZapomnienia     = dbReader.IsDBNull(3) ? "" : dbReader.GetString(3),
-                ZapomnialUserId     = dbReader.IsDBNull(4) ? "" : dbReader.GetInt64(4).ToString()
+                Id = dbReader.GetInt64(0),
+                FullNameAfterForget = $"{firstName} {lastName}".Trim(),
+                DataZapomnienia = dbReader.IsDBNull(3) ? "" : dbReader.GetString(3),
+                ZapomnialUserId = dbReader.IsDBNull(4) ? "" : dbReader.GetInt64(4).ToString()
             });
         }
 
@@ -654,18 +662,18 @@ ORDER BY DataZapomnienia DESC;
 
         // Generowanie losowych danych zastępczych
         var anonymizedFirstName = RandomLetters(6);
-        var anonymizedLastName  = RandomLetters(8);
-        var anonymizedPesel     = RandomDigits(11);
+        var anonymizedLastName = RandomLetters(8);
+        var anonymizedPesel = RandomDigits(11);
 
-        var birthYear  = 1950 + SecureRandomInt(56); // zakres 1950–2005
+        var birthYear = 1950 + SecureRandomInt(56); // zakres 1950–2005
         var birthMonth = 1 + SecureRandomInt(12);
-        var birthDay   = 1 + SecureRandomInt(DateTime.DaysInMonth(birthYear, birthMonth));
+        var birthDay = 1 + SecureRandomInt(DateTime.DaysInMonth(birthYear, birthMonth));
         var anonymizedBirthDate = new DateTime(birthYear, birthMonth, birthDay).ToString("yyyy-MM-dd");
 
-        var anonymizedGender   = SecureRandomInt(2);
+        var anonymizedGender = SecureRandomInt(2);
         var anonymizedUsername = "del_" + RandomToken(10);
         var anonymizedPassword = RandomToken(12);
-        var anonymizedEmail    = $"{RandomToken(8)}@example.com";
+        var anonymizedEmail = $"{RandomToken(8)}@example.com";
 
         using var command = connection.CreateCommand();
 
@@ -687,16 +695,16 @@ SET czy_zapomniany = 1,
     Email           = $email
 WHERE id = $id;
 ";
-        command.Parameters.AddWithValue("$id",           id);
-        command.Parameters.AddWithValue("$adminId",      adminId);
-        command.Parameters.AddWithValue("$firstName",    anonymizedFirstName);
-        command.Parameters.AddWithValue("$lastName",     anonymizedLastName);
-        command.Parameters.AddWithValue("$pesel",        anonymizedPesel);
+        command.Parameters.AddWithValue("$id", id);
+        command.Parameters.AddWithValue("$adminId", adminId);
+        command.Parameters.AddWithValue("$firstName", anonymizedFirstName);
+        command.Parameters.AddWithValue("$lastName", anonymizedLastName);
+        command.Parameters.AddWithValue("$pesel", anonymizedPesel);
         command.Parameters.AddWithValue("$dataUrodzenia", anonymizedBirthDate);
-        command.Parameters.AddWithValue("$plec",         anonymizedGender);
-        command.Parameters.AddWithValue("$username",     anonymizedUsername);
-        command.Parameters.AddWithValue("$password",     anonymizedPassword);
-        command.Parameters.AddWithValue("$email",        anonymizedEmail);
+        command.Parameters.AddWithValue("$plec", anonymizedGender);
+        command.Parameters.AddWithValue("$username", anonymizedUsername);
+        command.Parameters.AddWithValue("$password", anonymizedPassword);
+        command.Parameters.AddWithValue("$email", anonymizedEmail);
 
         var affectedRows = command.ExecuteNonQuery();
         if (affectedRows == 0)

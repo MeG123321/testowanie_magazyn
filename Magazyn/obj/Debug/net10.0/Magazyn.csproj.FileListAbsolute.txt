@@ -51,9 +51,7 @@
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/scopedcss/bundle/Magazyn.styles.css
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/scopedcss/projectbundle/Magazyn.bundle.scp.css
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/7aad1dbhej-{0}-lugek5hnai-lugek5hnai.gz
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/4hhxnjr2a1-{0}-y1tgpu5kl0-y1tgpu5kl0.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/tlmn9et3ln-{0}-61n19gt1b8-61n19gt1b8.gz
-/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/nhwogi5a86-{0}-5e8q78rm7h-5e8q78rm7h.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/3pxq18bujn-{0}-fr7q2aak1r-fr7q2aak1r.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/dmdz8xh122-{0}-bqjiyaj88i-bqjiyaj88i.gz
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/cjueukzbnu-{0}-c2jlpeoesf-c2jlpeoesf.gz
@@ -127,3 +125,5 @@
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/Magazyn.pdb
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/Magazyn.genruntimeconfig.cache
 /workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/ref/Magazyn.dll
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/nhwogi5a86-{0}-d2sc7rjmhs-d2sc7rjmhs.gz
+/workspaces/testowanie_magazyn/Magazyn/obj/Debug/net10.0/compressed/4hhxnjr2a1-{0}-n10wq3762r-n10wq3762r.gz
