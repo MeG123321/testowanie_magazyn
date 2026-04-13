@@ -382,25 +382,19 @@ VALUES ($roleId, $userId);
     }
 
     // ============================================
-    // EDYCJA USERA
-    // ============================================
+// EDYCJA USERA
+// ============================================
 
-    /// <summary>
-    /// Wyświetla formularz edycji danych użytkownika wstępnie wypełniony
-    /// aktualną zawartością rekordu z bazy danych.
-    /// </summary>
-    /// <param name="id">Identyfikator użytkownika.</param>
-    [HttpGet]
-    public IActionResult EditUser(long id)
-    {
-        if (!System.IO.File.Exists(DbPath))
-            return NotFound(new { msg = "Brak bazy", path = DbPath });
+[HttpGet]
+public IActionResult EditUser(long id)
+{
+    if (!System.IO.File.Exists(DbPath))
+        return NotFound(new { msg = "Brak bazy", path = DbPath });
 
-        using var connection = Db.OpenConnection(DbPath);
-        using var command = connection.CreateCommand();
+    using var connection = Db.OpenConnection(DbPath);
+    using var command = connection.CreateCommand();
 
-        // Pobiera dane użytkownika do wstępnego wypełnienia formularza edycji.
-        command.CommandText = @"
+    command.CommandText = @"
 SELECT id, username, Password, firstName, LastName, pesel, Status, Plec, DataUrodzenia,
        Email, NrTelefonu,
        Miejscowosc, KodPocztowy, numer_posesji, Ulica, NrLokalu
@@ -408,76 +402,75 @@ FROM Uzytkownicy
 WHERE id = $id
 LIMIT 1;
 ";
-        command.Parameters.AddWithValue("$id", id);
+    command.Parameters.AddWithValue("$id", id);
 
-        using var dbReader = command.ExecuteReader();
-        if (!dbReader.Read()) return NotFound(new { msg = "Nie znaleziono użytkownika" });
+    using var dbReader = command.ExecuteReader();
+    if (!dbReader.Read()) return NotFound(new { msg = "Nie znaleziono użytkownika" });
 
-        var viewModel = new UserVm
-        {
-            Id = Convert.ToInt64(dbReader["id"]),
-            Username = dbReader["username"]?.ToString() ?? "",
-            Password = dbReader["Password"]?.ToString() ?? "",
-            FirstName = dbReader["firstName"]?.ToString() ?? "",
-            LastName = dbReader["LastName"]?.ToString() ?? "",
-            Pesel = dbReader["pesel"]?.ToString() ?? "",
-            Status = StatusToText(dbReader["Status"]),
-            Plec = PlecToText(dbReader["Plec"] == DBNull.Value ? 0 : Convert.ToInt32(dbReader["Plec"])),
-            DataUrodzenia = dbReader["DataUrodzenia"]?.ToString() ?? "",
-            Email = dbReader["Email"]?.ToString() ?? "",
-            NrTelefonu = dbReader["NrTelefonu"]?.ToString() ?? "",
-            Miejscowosc = dbReader["Miejscowosc"]?.ToString() ?? "",
-            KodPocztowy = dbReader["KodPocztowy"]?.ToString() ?? "",
-            NrPosesji = dbReader["numer_posesji"]?.ToString() ?? "",
-            Ulica = dbReader["Ulica"]?.ToString(),
-            NrLokalu = dbReader["NrLokalu"]?.ToString()
-        };
+    var viewModel = new UserVm
+    {
+        Id = Convert.ToInt64(dbReader["id"]),
+        Username = dbReader["username"]?.ToString() ?? "",
+        Password = dbReader["Password"]?.ToString() ?? "",
+        FirstName = dbReader["firstName"]?.ToString() ?? "",
+        LastName = dbReader["LastName"]?.ToString() ?? "",
+        Pesel = dbReader["pesel"]?.ToString() ?? "",
+        Status = StatusToText(dbReader["Status"]),
+        Plec = PlecToText(dbReader["Plec"] == DBNull.Value ? 0 : Convert.ToInt32(dbReader["Plec"])),
 
+        // DateOnly?
+        DataUrodzenia = DateOnly.TryParse(dbReader["DataUrodzenia"]?.ToString(), out var d) ? d : null,
+
+        Email = dbReader["Email"]?.ToString() ?? "",
+        NrTelefonu = dbReader["NrTelefonu"]?.ToString() ?? "",
+        Miejscowosc = dbReader["Miejscowosc"]?.ToString() ?? "",
+        KodPocztowy = dbReader["KodPocztowy"]?.ToString() ?? "",
+        NrPosesji = dbReader["numer_posesji"]?.ToString() ?? "",
+        Ulica = dbReader["Ulica"]?.ToString(),
+        NrLokalu = dbReader["NrLokalu"]?.ToString()
+    };
+
+    return View(viewModel);
+}
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public IActionResult EditUser(UserVm viewModel)
+{
+    if (!ModelState.IsValid)
+        return View(viewModel);
+
+    if (!System.IO.File.Exists(DbPath))
+    {
+        ModelState.AddModelError("", $"Nie znaleziono bazy danych: {DbPath}");
         return View(viewModel);
     }
 
-    /// <summary>
-    /// Zapisuje zmodyfikowane dane użytkownika do bazy danych.
-    /// Pola opcjonalne (Ulica, NrLokalu, Password) są zapisywane jako NULL gdy są puste.
-    /// </summary>
-    /// <param name="viewModel">Dane z formularza edycji.</param>
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult EditUser(UserVm viewModel)
-    {
-        if (!ModelState.IsValid)
-            return View(viewModel);
+    _logger.LogInformation("[AdminAccess] '{User}' edytuje użytkownika id={TargetId} IP={RemoteIp}",
+        SL(User.Identity?.Name), viewModel.Id, HttpContext.Connection.RemoteIpAddress);
 
-        if (!System.IO.File.Exists(DbPath))
-        {
-            ModelState.AddModelError("", $"Nie znaleziono bazy danych: {DbPath}");
-            return View(viewModel);
-        }
+    viewModel.Username = (viewModel.Username ?? "").Trim();
+    viewModel.Password = (viewModel.Password ?? "").Trim();
+    viewModel.FirstName = (viewModel.FirstName ?? "").Trim();
+    viewModel.LastName = (viewModel.LastName ?? "").Trim();
+    viewModel.Pesel = (viewModel.Pesel ?? "").Trim();
+    viewModel.Status = (viewModel.Status ?? "").Trim();
+    viewModel.Plec = (viewModel.Plec ?? "").Trim();
+    // viewModel.DataUrodzenia -> DateOnly? NIE trimujemy
+    viewModel.Email = (viewModel.Email ?? "").Trim();
+    viewModel.NrTelefonu = (viewModel.NrTelefonu ?? "").Trim();
+    viewModel.Miejscowosc = (viewModel.Miejscowosc ?? "").Trim();
+    viewModel.KodPocztowy = (viewModel.KodPocztowy ?? "").Trim();
+    viewModel.NrPosesji = (viewModel.NrPosesji ?? "").Trim();
+    viewModel.Ulica = (viewModel.Ulica ?? "").Trim();
+    viewModel.NrLokalu = (viewModel.NrLokalu ?? "").Trim();
 
-        _logger.LogInformation("[AdminAccess] '{User}' edytuje użytkownika id={TargetId} IP={RemoteIp}",
-            SL(User.Identity?.Name), viewModel.Id, HttpContext.Connection.RemoteIpAddress);
-        viewModel.Username = (viewModel.Username ?? "").Trim();
-        viewModel.Password = (viewModel.Password ?? "").Trim();
-        viewModel.FirstName = (viewModel.FirstName ?? "").Trim();
-        viewModel.LastName = (viewModel.LastName ?? "").Trim();
-        viewModel.Pesel = (viewModel.Pesel ?? "").Trim();
-        viewModel.Status = (viewModel.Status ?? "").Trim();
-        viewModel.Plec = (viewModel.Plec ?? "").Trim();
-        viewModel.DataUrodzenia = (viewModel.DataUrodzenia ?? "").Trim();
-        viewModel.Email = (viewModel.Email ?? "").Trim();
-        viewModel.NrTelefonu = (viewModel.NrTelefonu ?? "").Trim();
-        viewModel.Miejscowosc = (viewModel.Miejscowosc ?? "").Trim();
-        viewModel.KodPocztowy = (viewModel.KodPocztowy ?? "").Trim();
-        viewModel.NrPosesji = (viewModel.NrPosesji ?? "").Trim();
-        viewModel.Ulica = (viewModel.Ulica ?? "").Trim();
-        viewModel.NrLokalu = (viewModel.NrLokalu ?? "").Trim();
+    var dataUrodzeniaStr = viewModel.DataUrodzenia?.ToString("yyyy-MM-dd");
 
-        using var connection = Db.OpenConnection(DbPath);
-        using var command = connection.CreateCommand();
+    using var connection = Db.OpenConnection(DbPath);
+    using var command = connection.CreateCommand();
 
-        // Aktualizuje wszystkie pola edytowalne użytkownika.
-        // Puste pola opcjonalne (Password, Ulica, NrLokalu) zapisywane jako NULL.
-        command.CommandText = @"
+    command.CommandText = @"
 UPDATE Uzytkownicy
 SET username      = $username,
     Password      = $password,
@@ -496,33 +489,37 @@ SET username      = $username,
     NrLokalu      = $nrLokalu
 WHERE id = $id;
 ";
-        command.Parameters.AddWithValue("$id", viewModel.Id);
-        command.Parameters.AddWithValue("$username", viewModel.Username);
-        command.Parameters.AddWithValue("$password", string.IsNullOrWhiteSpace(viewModel.Password) ? DBNull.Value : viewModel.Password);
-        command.Parameters.AddWithValue("$firstName", viewModel.FirstName);
-        command.Parameters.AddWithValue("$lastName", viewModel.LastName);
-        command.Parameters.AddWithValue("$pesel", viewModel.Pesel);
-        command.Parameters.AddWithValue("$status", StatusToInt(viewModel.Status));
-        command.Parameters.AddWithValue("$plec", PlecToInt(viewModel.Plec));
-        command.Parameters.AddWithValue("$dataUrodzenia", viewModel.DataUrodzenia);
-        command.Parameters.AddWithValue("$email", viewModel.Email);
-        command.Parameters.AddWithValue("$nrTelefonu", viewModel.NrTelefonu);
-        command.Parameters.AddWithValue("$miejscowosc", viewModel.Miejscowosc);
-        command.Parameters.AddWithValue("$kodPocztowy", viewModel.KodPocztowy);
-        command.Parameters.AddWithValue("$nrPosesji", viewModel.NrPosesji);
-        command.Parameters.AddWithValue("$ulica", string.IsNullOrWhiteSpace(viewModel.Ulica) ? DBNull.Value : viewModel.Ulica);
-        command.Parameters.AddWithValue("$nrLokalu", string.IsNullOrWhiteSpace(viewModel.NrLokalu) ? DBNull.Value : viewModel.NrLokalu);
+    command.Parameters.AddWithValue("$id", viewModel.Id);
+    command.Parameters.AddWithValue("$username", viewModel.Username);
+    command.Parameters.AddWithValue("$password", string.IsNullOrWhiteSpace(viewModel.Password) ? DBNull.Value : viewModel.Password);
+    command.Parameters.AddWithValue("$firstName", viewModel.FirstName);
+    command.Parameters.AddWithValue("$lastName", viewModel.LastName);
+    command.Parameters.AddWithValue("$pesel", viewModel.Pesel);
+    command.Parameters.AddWithValue("$status", StatusToInt(viewModel.Status));
+    command.Parameters.AddWithValue("$plec", PlecToInt(viewModel.Plec));
 
-        var affectedRows = command.ExecuteNonQuery();
-        if (affectedRows == 0)
-        {
-            ModelState.AddModelError("", "Nie znaleziono użytkownika.");
-            return View(viewModel);
-        }
+    command.Parameters.AddWithValue(
+        "$dataUrodzenia",
+        string.IsNullOrWhiteSpace(dataUrodzeniaStr) ? DBNull.Value : dataUrodzeniaStr
+    );
 
-        return RedirectToAction(nameof(UserDetails), new { id = viewModel.Id });
+    command.Parameters.AddWithValue("$email", viewModel.Email);
+    command.Parameters.AddWithValue("$nrTelefonu", viewModel.NrTelefonu);
+    command.Parameters.AddWithValue("$miejscowosc", viewModel.Miejscowosc);
+    command.Parameters.AddWithValue("$kodPocztowy", viewModel.KodPocztowy);
+    command.Parameters.AddWithValue("$nrPosesji", viewModel.NrPosesji);
+    command.Parameters.AddWithValue("$ulica", string.IsNullOrWhiteSpace(viewModel.Ulica) ? DBNull.Value : viewModel.Ulica);
+    command.Parameters.AddWithValue("$nrLokalu", string.IsNullOrWhiteSpace(viewModel.NrLokalu) ? DBNull.Value : viewModel.NrLokalu);
+
+    var affectedRows = command.ExecuteNonQuery();
+    if (affectedRows == 0)
+    {
+        ModelState.AddModelError("", "Nie znaleziono użytkownika.");
+        return View(viewModel);
     }
 
+    return RedirectToAction(nameof(UserDetails), new { id = viewModel.Id });
+}
     // ============================================
     // FORGOTTEN USERS (RODO)
     // ============================================
