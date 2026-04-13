@@ -29,7 +29,7 @@ namespace Magazyn.Tests.Controllers
             return new UserRegistrationDto
             {
                 Username = "testprac01",
-                Password = "Password123!", // Musi spełniać: mała, duża, cyfra, spec
+                Password = "Test123!", // Musi spełniać: mała, duża, cyfra, spec
                 FirstName = "Marek",
                 LastName = "Nowak",
                 Email = "marek.nowak01@example.com",
