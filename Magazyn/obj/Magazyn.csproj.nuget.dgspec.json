@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\Magazyn\\Magazyn.csproj": {}
+    "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\magazyn\\Magazyn.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\Magazyn\\Magazyn.csproj": {
+    "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\magazyn\\Magazyn.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\Magazyn\\Magazyn.csproj",
+        "projectUniqueName": "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\magazyn\\Magazyn.csproj",
         "projectName": "Magazyn",
-        "projectPath": "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\Magazyn\\Magazyn.csproj",
+        "projectPath": "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\magazyn\\Magazyn.csproj",
         "packagesPath": "C:\\Users\\mateu\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\Magazyn\\obj\\",
+        "outputPath": "C:\\Users\\mateu\\Documents\\GitHub\\testowanie_magazyn\\magazyn\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

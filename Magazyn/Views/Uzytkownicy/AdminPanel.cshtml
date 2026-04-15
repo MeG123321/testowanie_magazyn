@@ -65,9 +65,7 @@
 
                         <div class="btn-group">
                             <button type="submit" class="btn-primary">Wyszukaj</button>
-                            <a class="btn-secondary"
-                               asp-controller="Uzytkownicy" asp-action="AdminPanel"
-                               style="text-decoration:none; display:inline-block; text-align:center;">Wyczyść</a>
+                            <button asp-controller="Uzytkownicy" asp-action="AdminPanel" class="btn-primary">Wyczyść</button>
                         </div>
                     </form>
                 </div>
@@ -90,7 +88,7 @@
                             @if (Model == null || Model.Count == 0)
                             {
                                 <tr>
-                                    <td colspan="8" style="color:#ff6b6b; font-weight:700;">NIE ZNALEZIONO</td>
+                                    <td colspan="8" class="no-results">NIE ZNALEZIONO</td>
                                 </tr>
                             }
                             else
@@ -109,8 +107,7 @@
                                             <a class="btn-secondary"
                                                asp-controller="Uzytkownicy"
                                                asp-action="UserDetails"
-                                               asp-route-id="@u.Id"
-                                               style="text-decoration:none; display:inline-block; text-align:center;">
+                                               asp-route-id="@u.Id">
                                                 Szczegóły
                                             </a>
                                         </td>
