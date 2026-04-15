@@ -381,4 +381,4 @@ C:\Users\mateu\Documents\GitHub\v1\Magazyn\obj\Debug\net10.0\refint\Magazyn.dll
 C:\Users\mateu\Documents\GitHub\v1\Magazyn\obj\Debug\net10.0\Magazyn.pdb
 C:\Users\mateu\Documents\GitHub\v1\Magazyn\obj\Debug\net10.0\Magazyn.genruntimeconfig.cache
 C:\Users\mateu\Documents\GitHub\v1\Magazyn\obj\Debug\net10.0\ref\Magazyn.dll
-C:\Users\mateu\Documents\GitHub\testowanie_magazyn\magazyn\obj\Debug\net10.0\compressed\4hhxnjr2a1-{0}-41d092zbeb-41d092zbeb.gz
+C:\Users\mateu\Documents\GitHub\testowanie_magazyn\magazyn\obj\Debug\net10.0\compressed\4hhxnjr2a1-{0}-9vdb0c1u41-9vdb0c1u41.gz

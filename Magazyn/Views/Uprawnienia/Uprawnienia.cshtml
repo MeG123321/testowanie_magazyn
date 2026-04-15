@@ -1,15 +1,26 @@
+@model List<Magazyn.Models.Dtos.UserListRowDto>
 @{
     Layout = null;
+    var selected = (string[])(ViewBag.SelectedRoles ?? Array.Empty<string>());
+    
+    // Lista ról - Label to tekst wyświetlany, Value to nazwa w bazie
+    var allRoles = new (string Value, string Label)[]
+    {
+        ("Administrator",       "Administrator"),
+        ("Pracownik magazynu",  "Pracownik magazynu"),
+        ("Sprzedawca",          "Sprzedawca"),
+        ("Kierownik magazynu",  "Kierownik magazynu"),
+        ("Kierownik sprzedazy", "Kierownik sprzedaży")
+    };
 }
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magazyn GiTA - Uprawnienia</title>
-
+    <title>Magazyn GiTA - Lista Uprawnień</title>
     <link rel="stylesheet" href="~/css/style.css" />
-    <script defer src="~/js/script.js"></script>
 </head>
 
 <body data-home-url='@Url.Action("Index", "Home")'>
@@ -37,74 +48,81 @@
             </header>
 
             <section class="zaw">
-                <h2>Uprawnienia</h2>
-                <p>Przeglądaj role i zakres ich uprawnień.</p>
+                <h2>Lista Uprawnień</h2>
 
-                <div class="lista-uprawnien">
-                    <div class="karta-uprawnien">
-                        <div class="karta-lewa">
-                            <span class="rola-badge rola-admin">Administrator</span>
-                            <h3>Pełny dostęp</h3>
-                            <p>Nadaje wszystkie uprawnienia</p>
+                <div class="search-bar">
+                    <form method="get" id="filterForm" asp-controller="Uprawnienia" asp-action="Uprawnienia">
+                        <label style="display:block; margin-bottom: 15px; font-weight: bold; color: var(--accent-blue);">
+                            Filtruj użytkowników posiadających wszystkie zaznaczone role:
+                        </label>
+                        
+                        <div class="role-checkbox-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+                            @foreach (var rola in allRoles)
+                            {
+                                <label class="custom-checkbox" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" name="rola" value="@rola.Value" 
+                                           onchange="this.form.submit()"
+                                           @(selected.Contains(rola.Value) ? "checked" : "") />
+                                    <span>@rola.Label</span>
+                                </label>
+                            }
                         </div>
-                        <div class="karta-prawa">
-                            <a asp-controller="Uprawnienia" asp-action="UsersByRole" asp-route-rola="Administrator" class="btn-akcja">
-                                Wyświetl użytkowników
-                            </a>
-                        </div>
-                    </div>
 
-                    <div class="karta-uprawnien">
-                        <div class="karta-lewa">
-                            <span class="rola-badge rola-kierownik-mag">Kierownik magazynu</span>
-                            <h3>Stany magazynowe</h3>
-                            <p>Przeglądanie stanów magazynowych</p>
+                        <div class="btn-group">
+                            @* Przycisk Filtruj usunięty - filtrowanie jest automatyczne *@
+                            <a class="btn-secondary" asp-controller="Uprawnienia" asp-action="Uprawnienia">Wyczyść wszystkie filtry</a>
                         </div>
-                        <div class="karta-prawa">
-                            <a asp-controller="Uprawnienia" asp-action="UsersByRole" asp-route-rola="Kierownik magazynu" class="btn-akcja">
-                                Wyświetl użytkowników
-                            </a>
-                        </div>
-                    </div>
+                    </form>
+                </div>
 
-                    <div class="karta-uprawnien">
-                        <div class="karta-lewa">
-                            <span class="rola-badge rola-kierownik-sprzedazy">Kierownik sprzedaży</span>
-                            <h3>Historia sprzedaży</h3>
-                            <p>Przeglądanie historii sprzedaży</p>
-                        </div>
-                        <div class="karta-prawa">
-                            <a asp-controller="Uprawnienia" asp-action="UsersByRole" asp-route-rola="Kierownik sprzedazy" class="btn-akcja">
-                                Wyświetl użytkowników
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="karta-uprawnien">
-                        <div class="karta-lewa">
-                            <span class="rola-badge rola-sprzedawca">Sprzedawca</span>
-                            <h3>Sprzedaż</h3>
-                            <p>Rejestracja sprzedaży towarów</p>
-                        </div>
-                        <div class="karta-prawa">
-                            <a asp-controller="Uprawnienia" asp-action="UsersByRole" asp-route-rola="Sprzedawca" class="btn-akcja">
-                                Wyświetl użytkowników
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="karta-uprawnien">
-                        <div class="karta-lewa">
-                            <span class="rola-badge rola-magazyn">Pracownik magazynu</span>
-                            <h3>Aktualizacja stanu magazynu</h3>
-                            <p>Możliwość zarejestrowania nowego towaru</p>
-                        </div>
-                        <div class="karta-prawa">
-                            <a asp-controller="Uprawnienia" asp-action="UsersByRole" asp-route-rola="Pracownik magazynu" class="btn-akcja">
-                                Wyświetl użytkowników
-                            </a>
-                        </div>
-                    </div>
+                <div class="tabelka-wyniki">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Login</th>
+                                <th>Imię</th>
+                                <th>Nazwisko</th>
+                                <th>Email</th>
+                                <th>PESEL</th>
+                                <th>Status</th>
+                                <th>Role</th>
+                                <th>Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model == null || Model.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="8" class="no-results" style="text-align: center; padding: 40px; color: var(--error-red);">
+                                        Brak użytkowników spełniających WSZYSTKIE wybrane kryteria ról.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var u in Model)
+                                {
+                                    <tr>
+                                        <td><strong>@u.Username</strong></td>
+                                        <td>@u.FirstName</td>
+                                        <td>@u.LastName</td>
+                                        <td>@u.Email</td>
+                                        <td>@u.Pesel</td>
+                                        <td>@u.Status</td>
+                                        <td style="color: var(--accent-blue); font-size: 13px;">@u.Rola</td>
+                                        <td>
+                                            <a class="btn-secondary" 
+                                               asp-controller="Uzytkownicy" 
+                                               asp-action="UserDetails" 
+                                               asp-route-id="@u.Id">
+                                                Szczegóły
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </main>

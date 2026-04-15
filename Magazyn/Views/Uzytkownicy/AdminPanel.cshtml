@@ -11,8 +11,6 @@
     <title>Magazyn GiTA - Zarządzanie</title>
 
     <link rel="stylesheet" href="~/css/style.css" />
-
-    <script defer src="~/js/script.js"></script>
 </head>
 
 <body data-home-url='@Url.Action("Index", "Home")'>
@@ -65,7 +63,7 @@
 
                         <div class="btn-group">
                             <button type="submit" class="btn-primary">Wyszukaj</button>
-                            <button asp-controller="Uzytkownicy" asp-action="AdminPanel" class="btn-primary">Wyczyść</button>
+                            <a asp-controller="Uzytkownicy" asp-action="AdminPanel" class="btn-secondary">Wyczyść</a>
                         </div>
                     </form>
                 </div>
@@ -104,12 +102,7 @@
                                         <td>@u.Status</td>
                                         <td>@u.Rola</td>
                                         <td>
-                                            <a class="btn-secondary"
-                                               asp-controller="Uzytkownicy"
-                                               asp-action="UserDetails"
-                                               asp-route-id="@u.Id">
-                                                Szczegóły
-                                            </a>
+                                            <a class="btn-secondary" asp-controller="Uzytkownicy" asp-action="UserDetails" asp-route-id="@u.Id">Szczegóły</a>
                                         </td>
                                     </tr>
                                 }

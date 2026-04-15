@@ -65,11 +65,13 @@ body {
 .gitanav a {
     text-decoration: none;
     color: var(--text-main);
-    padding: 10px 15px;
+    padding: 10px 25px;
     display: block;
     border-radius: 6px;
     transition: 0.2s;
+    font-weight: bold;
 }
+
 
 .gitanav a:hover, .gitanav a.active {
     background-color: #22272e;
@@ -141,40 +143,76 @@ h2 {
     outline: none;
 }
 
-.btn-group {
-    display: flex;
-    gap: 10px;
+.btn-primary, .btn-secondary {
+
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none !important;
+    line-height: 1;
+    
+
+    height: 38px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    
+
+    cursor: pointer;
+    border: none; 
+    transition: all 0.2s ease;
 }
 
-button {
-    padding: 10px 25px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-}
 
 .btn-primary {
     background-color: var(--accent-blue);
     color: white;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
 }
+
+.btn-primary:hover {
+    box-shadow: 0 0 15px var(--accent-blue);
+    filter: saturate(1.2);
+}
+
 
 .btn-secondary {
     background-color: transparent;
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
+    color: white;
+    border: 1px solid var(--accent-blue);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: #5a9bff;
+    box-shadow: 0 0 10px rgba(90, 155, 255, 0.3);
+}
+
+.action-link, .back-link {
+    text-decoration: none !important;
+    color: var(--accent-blue);
+    transition: 0.2s;
+}
+
+.back-link:hover {
+    filter: brightness(1.2);
+}
+
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 .back-link {
     display: inline-block;
     margin-bottom: 14px;
+    color: rgba(90, 155, 255, 0.3);
 }
 
 .mt-30 {
