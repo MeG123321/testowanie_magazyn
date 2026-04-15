@@ -179,7 +179,6 @@ C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\sco
 C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\scopedcss\bundle\Magazyn.styles.css
 C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\scopedcss\projectbundle\Magazyn.bundle.scp.css
 C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\compressed\7aad1dbhej-{0}-lugek5hnai-lugek5hnai.gz
-C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\compressed\4hhxnjr2a1-{0}-kcm686yf2p-kcm686yf2p.gz
 C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\compressed\tlmn9et3ln-{0}-61n19gt1b8-61n19gt1b8.gz
 C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\compressed\3pxq18bujn-{0}-fr7q2aak1r-fr7q2aak1r.gz
 C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\compressed\dmdz8xh122-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -254,3 +253,4 @@ C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\ref
 C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.pdb
 C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.genruntimeconfig.cache
 C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\ref\Magazyn.dll
+C:\Users\mateu\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\compressed\4hhxnjr2a1-{0}-ua16zfpmds-ua16zfpmds.gz

@@ -6,6 +6,7 @@ namespace Magazyn.Controllers;
 
 public partial class UzytkownicyController : Controller
 {
+
     [HttpGet]
     public IActionResult AdminPanel(string? login = null, string? name = null, string? pesel = null)
     {

@@ -157,7 +157,7 @@
                         <div>
                             <div class="name-line">
                                 <h2 style="margin:0;">@Model.FirstName @Model.LastName</h2>
-                                
+
                                 @* POPRAWKA WYŚWIETLANIA STATUSU *@
                                 <span class="status-pill @(active ? "" : "off")">
                                     @(string.IsNullOrWhiteSpace(currentStatus) ? "Status: Nieokreślony" : $"Status: {currentStatus}")
@@ -180,15 +180,15 @@
                             Edytuj
                         </a>
 
+                        @* RODO: zapomnij użytkownika (bez adminId w formularzu) *@
                         <form class="inline-form"
                               asp-controller="Uzytkownicy"
                               asp-action="ForgetUserFromDetails"
                               asp-route-id="@Model.Id"
-                              method="post">
+                              method="post"
+                              onsubmit="return confirm('Na pewno zapomnieć użytkownika? Tej operacji nie da się cofnąć.');">
                             @Html.AntiForgeryToken()
-                            <input type="hidden" name="adminId" value="1" />
-                            <button type="submit" class="btn-secondary"
-                                    onclick="return confirm('Na pewno zapomnieć użytkownika?');">
+                            <button type="submit" class="btn-secondary">
                                 Zapomnij użytkownika
                             </button>
                         </form>
