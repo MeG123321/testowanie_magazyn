@@ -416,81 +416,104 @@ td {
     gap: 10px;
     flex-wrap: wrap;
     align-items: center;
-}
-
-.role-fallback {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.55);
-    align-items: center;
-    justify-content: center;
-    padding: 18px;
-    z-index: 9999;
-}
-
-.role-fallback:target {
-    display: flex;
-}
-
-.role-fallback .role-box {
-    width: min(620px, 95vw);
-}
-
-.role-box {
-    background: #0f0f10;
-    border-radius: 14px;
-    padding: 18px;
-    border: 1px solid rgba(255,255,255,.12);
-}
-
-.role-box h3 {
-    margin: 0 0 10px 0;
-    color: #fff;
-}
-
-.role-box label {
-    color: #fff;
-    font-weight: 700;
-}
-
-.role-box select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 10px;
-    margin-top: 6px;
-}
-
-.role-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-}
-
-.role-actions {
-    display: flex;
-    gap: 10px;
     justify-content: flex-end;
-    margin-top: 14px;
-    flex-wrap: wrap;
 }
 
-.close-x {
-    float: right;
-    color: #fff;
-    text-decoration: none;
-    font-size: 28px;
-    line-height: 1;
-    margin-top: -2px;
-}
-
-.note {
-    font-size: 12px;
-    opacity: .85;
-    margin-top: 6px;
-    color: #fff;
-}
 
 .inline-form {
     display: inline;
+}
+
+/* --- KONTENER RÓL --- */
+.role-grid {
+    display: flex;
+    flex-direction: column;    /* Domyślnie pod sobą (dla popupu) */
+    gap: 8px;
+    align-items: flex-start;   /* Border dopasowuje się do tekstu */
+    width: 100%;
+}
+
+/* Klasa modyfikująca dla filtrów (układ poziomy) */
+.role-grid.horizontal {
+    flex-direction: row;       /* Obok siebie */
+    flex-wrap: wrap;           /* Zawijanie rzędów */
+    align-items: center;
+}
+
+/* --- PRZYCISK ROLI (Na wzór btn-secondary) --- */
+.role-btn {
+    box-sizing: border-box;    /* Zapobiega wystawaniu */
+    display: inline-flex;      /* Szerokość zależna od tekstu */
+    align-items: center;
+    justify-content: center;
+    
+    height: 38px;              /* Twoja wysokość standardowa */
+    padding: 0 16px;
+    border-radius: 6px;
+    
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    /* Styl bazowy: Niebieski (nieaktywny) */
+    background-color: transparent;
+    color: white;
+    border: 1px solid var(--accent-blue);
+    user-select: none;
+    white-space: nowrap;       /* Tekst w jednej linii */
+}
+
+/* Ukrycie natywnego checkboxa */
+.role-btn input {
+    display: none;
+}
+
+/* Hover dla przycisku */
+.role-btn:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: #5a9bff;
+    box-shadow: 0 0 8px rgba(90, 155, 255, 0.2);
+}
+
+/* --- STAN ZAZNACZONY (Zielony) --- */
+.role-btn:has(input:checked) {
+    border: 2px solid var(--status-green) !important;
+    color: var(--status-green);
+    background-color: rgba(87, 171, 90, 0.08);
+    box-shadow: 0 0 10px rgba(87, 171, 90, 0.2);
+}
+
+/* --- OBSŁUGA POPUPU (Overlay) --- */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+}
+
+.popup-overlay:target {
+    display: flex;
+}
+
+.popup-content {
+    max-width: 550px;
+    width: 90%;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+}
+
+.close-x {
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 28px;
+    line-height: 1;
+}
+
+.close-x:hover {
+    color: var(--accent-blue);
 }

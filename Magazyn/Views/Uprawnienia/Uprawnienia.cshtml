@@ -3,7 +3,6 @@
     Layout = null;
     var selected = (string[])(ViewBag.SelectedRoles ?? Array.Empty<string>());
     
-    // Lista ról - Label to tekst wyświetlany, Value to nazwa w bazie
     var allRoles = new (string Value, string Label)[]
     {
         ("Administrator",       "Administrator"),
@@ -50,31 +49,33 @@
             <section class="zaw">
                 <h2>Lista Uprawnień</h2>
 
+                @* SEKCJA FILTRÓW *@
                 <div class="search-bar">
                     <form method="get" id="filterForm" asp-controller="Uprawnienia" asp-action="Uprawnienia">
                         <label style="display:block; margin-bottom: 15px; font-weight: bold; color: var(--accent-blue);">
-                            Filtruj użytkowników posiadających wszystkie zaznaczone role:
+                            Filtruj użytkowników (wybierz role):
                         </label>
                         
-                        <div class="role-checkbox-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+                        @* Klasa 'horizontal' sprawia, że filtry są obok siebie *@
+                        <div class="role-grid horizontal">
                             @foreach (var rola in allRoles)
                             {
-                                <label class="custom-checkbox" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <label class="role-btn">
                                     <input type="checkbox" name="rola" value="@rola.Value" 
                                            onchange="this.form.submit()"
                                            @(selected.Contains(rola.Value) ? "checked" : "") />
-                                    <span>@rola.Label</span>
+                                    @rola.Label
                                 </label>
                             }
                         </div>
 
-                        <div class="btn-group">
-                            @* Przycisk Filtruj usunięty - filtrowanie jest automatyczne *@
-                            <a class="btn-secondary" asp-controller="Uprawnienia" asp-action="Uprawnienia">Wyczyść wszystkie filtry</a>
+                        <div class="btn-group" style="margin-top: 20px;">
+                            <a class="btn-primary" asp-controller="Uprawnienia" asp-action="Uprawnienia">Wyczyść filtry</a>
                         </div>
                     </form>
                 </div>
 
+                @* TABELA WYNIKÓW *@
                 <div class="tabelka-wyniki">
                     <table>
                         <thead>
@@ -82,19 +83,17 @@
                                 <th>Login</th>
                                 <th>Imię</th>
                                 <th>Nazwisko</th>
-                                <th>Email</th>
-                                <th>PESEL</th>
-                                <th>Status</th>
                                 <th>Role</th>
+                                <th>Status</th>
                                 <th>Akcje</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if (Model == null || Model.Count == 0)
+                            @if (Model == null || !Model.Any())
                             {
                                 <tr>
-                                    <td colspan="8" class="no-results" style="text-align: center; padding: 40px; color: var(--error-red);">
-                                        Brak użytkowników spełniających WSZYSTKIE wybrane kryteria ról.
+                                    <td colspan="6" class="no-results" style="text-align: center; padding: 40px;">
+                                        Brak użytkowników dla wybranych ról.
                                     </td>
                                 </tr>
                             }
@@ -106,17 +105,10 @@
                                         <td><strong>@u.Username</strong></td>
                                         <td>@u.FirstName</td>
                                         <td>@u.LastName</td>
-                                        <td>@u.Email</td>
-                                        <td>@u.Pesel</td>
+                                        <td style="color: var(--accent-blue); font-size: 13px; font-weight: bold;">@u.Rola</td>
                                         <td>@u.Status</td>
-                                        <td style="color: var(--accent-blue); font-size: 13px;">@u.Rola</td>
                                         <td>
-                                            <a class="btn-secondary" 
-                                               asp-controller="Uzytkownicy" 
-                                               asp-action="UserDetails" 
-                                               asp-route-id="@u.Id">
-                                                Szczegóły
-                                            </a>
+                                            <a class="btn-secondary" asp-controller="Uzytkownicy" asp-action="UserDetails" asp-route-id="@u.Id">Szczegóły</a>
                                         </td>
                                     </tr>
                                 }
@@ -126,6 +118,42 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    @* POPUP (UKŁAD PIONOWY) *@
+    <div id="role-popup" class="popup-overlay">
+        <div class="search-bar popup-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin:0;">Nadaj uprawnienia</h2>
+                <a href="#" class="close-x">&times;</a>
+            </div>
+
+            <form asp-controller="Uprawnienia" asp-action="SetRole" method="post">
+                @Html.AntiForgeryToken()
+                @* Przykład: Id pobrane z pierwszego elementu modelu lub ViewBag *@
+                <input type="hidden" name="id" value="@ViewBag.CurrentUserId" />
+
+                @* Brak klasy 'horizontal' = układ pionowy *@
+                <div class="role-grid">
+                    @foreach (var r in allRoles)
+                    {
+                        <label class="role-btn">
+                            <input type="checkbox" name="rola" value="@r.Value" />
+                            @r.Label
+                        </label>
+                    }
+                </div>
+
+                <p class="db-info-note" style="margin-top: 20px;">
+                    Kliknij, aby przełączyć. <span style="color:var(--status-green)">Zielony</span> to rola aktywna.
+                </p>
+
+                <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
+                    <a class="btn-secondary" href="#">Anuluj</a>
+                    <button type="submit" class="btn-primary">Zapisz uprawnienia</button>
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 </html>

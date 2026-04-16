@@ -40,10 +40,10 @@
 
             <section class="zaw">
                 <a asp-controller="Uzytkownicy" asp-action="UserDetails" asp-route-id="@Model.Id" class="back-link">
-                    ← Wróć do szczegółów
+                    &larr; Wróć do szczegółów
                 </a>
 
-                <h2 >Edycja użytkownika: @Model.FirstName @Model.LastName</h2>
+                <h2>Edycja użytkownika: @Model.FirstName @Model.LastName</h2>
 
                 <div class="search-bar">
                     <form asp-controller="Uzytkownicy"
@@ -57,6 +57,8 @@
 
                         <input type="hidden" asp-for="Id" />
 
+                        @* --- SEKCJA 1: DANE OSOBOWE --- *@
+                        <h3 class="form-section-title">Dane pracownika</h3>
                         <div class="tabelka">
                             <div class="form-group">
                                 <label asp-for="Username">Login (5–20 znaków)</label>
@@ -70,7 +72,7 @@
                                        type="password"
                                        value=""
                                        autocomplete="new-password"
-                                       placeholder="Zostaw puste, jeśli nie zmieniasz hasła" />
+                                       placeholder="Zostaw puste, jeśli nie zmieniasz" />
                                 <span asp-validation-for="Password" class="field-error"></span>
                             </div>
 
@@ -121,15 +123,18 @@
                             </div>
 
                             <div class="form-group">
-                                <label asp-for="Status">Status</label>
+                                <label asp-for="Status">Status konta</label>
                                 <select asp-for="Status">
-                                    <option value="">Wybierz...</option>
                                     <option value="Aktywny">Aktywny</option>
                                     <option value="Nieaktywny">Nieaktywny</option>
                                 </select>
                                 <span asp-validation-for="Status" class="field-error"></span>
                             </div>
+                        </div>
 
+                        @* --- SEKCJA 2: ADRES --- *@
+                        <h3 class="form-section-title">Adres zamieszkania</h3>
+                        <div class="tabelka">
                             <div class="form-group">
                                 <label asp-for="Miejscowosc">Miejscowość</label>
                                 <input asp-for="Miejscowosc" placeholder="np. Warszawa" />
@@ -161,10 +166,9 @@
                             </div>
                         </div>
 
-                        <div class="btn-group mt-30">
+                        <div class="btn-group-final">
                             <button type="submit" class="btn-primary">Zapisz zmiany</button>
-                            <a class="btn-secondary"
-                               asp-controller="Uzytkownicy" asp-action="UserDetails" asp-route-id="@Model.Id">Anuluj</a>
+                            <a asp-controller="Uzytkownicy" asp-action="UserDetails" asp-route-id="@Model.Id" class="btn-secondary">Anuluj</a>
                         </div>
                     </form>
                 </div>
@@ -172,6 +176,8 @@
         </main>
     </div>
 
-    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 </body>
 </html>
