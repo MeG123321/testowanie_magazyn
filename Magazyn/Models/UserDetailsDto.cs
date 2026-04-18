@@ -20,3 +20,9 @@ public class UserDetailsDto
     public string? NrPosesji { get; set; }
     public string? NrLokalu { get; set; }
 }
+
+public class UserDetailsDto
+{
+    // ... istniejące pola ...
+    public bool IsForgotten { get; set; } // Dodaj to pole
+}

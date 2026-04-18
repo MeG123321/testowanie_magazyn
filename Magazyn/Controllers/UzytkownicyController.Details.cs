@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Magazyn.Data;
 using Magazyn.Models.Dtos;
+using System.Data;
 
 namespace Magazyn.Controllers;
 
@@ -28,7 +29,7 @@ SELECT u.id,
        u.firstName,
        u.LastName,
        u.pesel,
-       CASE WHEN u.Status = 1 THEN 'Aktywny' ELSE 'Nieaktywny' END AS Status,
+       u.Status AS RawStatus, -- Pobieramy surową wartość statusu
        u.Plec,
        u.DataUrodzenia,
        u.Email,
@@ -38,7 +39,8 @@ SELECT u.id,
        u.numer_posesji,
        u.Ulica,
        u.NrLokalu,
-       COALESCE(GROUP_CONCAT(p.Nazwa, ', '), '-') AS Rola
+       COALESCE(u.czy_zapomniany, 0) AS czy_zapomniany, -- Pobieramy flagę RODO
+       COALESCE(GROUP_CONCAT(p.Nazwa, '|'), '') AS RolaRaw -- Używamy separatora | dla łatwiejszego splitu
 FROM Uzytkownicy u
 LEFT JOIN Uzytkownik_Uprawnienia uu ON uu.uzytkownik_id = u.id
 LEFT JOIN Uprawnienia p ON p.Id = uu.uprawnienie_id
@@ -52,6 +54,13 @@ LIMIT 1;
         if (!dbReader.Read())
             return NotFound(new { msg = "Nie znaleziono użytkownika", id });
 
+        // Odczytujemy flagę zapomnienia
+        bool isForgotten = Convert.ToInt32(dbReader["czy_zapomniany"]) == 1;
+        
+        // Przygotowanie ról do listy (dla checkboxów w popupie)
+        string rolesRaw = dbReader["RolaRaw"]?.ToString() ?? "";
+        var roleList = rolesRaw.Split('|', StringSplitOptions.RemoveEmptyEntries).ToList();
+
         var userDetails = new UserDetailsDto
         {
             Id = Convert.ToInt64(dbReader["id"]),
@@ -59,8 +68,11 @@ LIMIT 1;
             FirstName = dbReader["firstName"]?.ToString(),
             LastName = dbReader["LastName"]?.ToString(),
             Pesel = dbReader["pesel"]?.ToString(),
-            Status = dbReader["Status"]?.ToString(),
-            Plec = dbReader["Plec"] == DBNull.Value ? 0 : Convert.ToInt32(dbReader["Plec"]),
+            
+            // Logika statusu: jeśli zapomniany, nadpisujemy status
+            Status = isForgotten ? "Zanonimizowany" : (Convert.ToInt32(dbReader["RawStatus"]) == 1 ? "Aktywny" : "Nieaktywny"),
+            
+            Plec = dbReader["Plec"] is DBNull ? 0 : Convert.ToInt32(dbReader["Plec"]),
             DataUrodzenia = dbReader["DataUrodzenia"]?.ToString(),
 
             Email = dbReader["Email"]?.ToString(),
@@ -71,7 +83,10 @@ LIMIT 1;
             NrPosesji = dbReader["numer_posesji"]?.ToString(),
             NrLokalu = dbReader["NrLokalu"]?.ToString(),
 
-            Rola = dbReader["Rola"]?.ToString(),
+            // Nowe pola obsługujące logikę widoku
+            IsForgotten = isForgotten,
+            RoleList = roleList,
+            Rola = roleList.Any() ? string.Join(", ", roleList) : "-"
         };
 
         return View(userDetails);

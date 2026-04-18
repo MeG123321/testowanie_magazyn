@@ -61,34 +61,37 @@
 
                 <div class="tabelka-wyniki">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Identyfikator</th>
-                                <th>Imię i nazwisko po zapomnieniu</th>
-                                <th>Data zapomnienia</th>
-                                <th>ID użytkownika, który dokonał zapomnienia</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model == null || Model.Count == 0)
-                            {
-                                <tr>
-                                    <td colspan="4" class="no-results">NIE ZNALEZIONO</td>
-                                </tr>
-                            }
-                            else
-                            {
-                                foreach (var u in Model)
-                                {
-                                    <tr>
-                                        <td>@u.Id</td>
-                                        <td>@u.FullNameAfterForget</td>
-                                        <td>@u.DataZapomnienia</td>
-                                        <td>@u.ZapomnialUserId</td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
+                        @* ... reszta pliku bez zmian ... *@
+<thead>
+    <tr>
+        <th>Identyfikator</th>
+        <th>Imię i nazwisko po zapomnieniu</th>
+        <th>Data zapomnienia</th>
+        @* ZMIENIONY NAGŁÓWEK *@
+        <th>Administrator wykonujący</th>
+    </tr>
+</thead>
+<tbody>
+    @if (Model == null || Model.Count == 0)
+    {
+        @* ... brak wyników ... *@
+    }
+    else
+    {
+        foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.Id</td>
+                <td>@u.FullNameAfterForget</td>
+                <td>@u.DataZapomnienia</td>
+                @* ZMIENIONA KOMÓRKA - zamiast ID wyświetlamy imię i nazwisko *@
+                <td><strong>@u.AdminName</strong></td>
+                <td><a class="btn-secondary" asp-controller="Uzytkownicy" asp-action="UserDetails" asp-route-id="@u.Id">Szczegóły</a></td>
+            </tr>
+        }
+    }
+</tbody>
+@* ... reszta pliku bez zmian ... *@
                     </table>
                 </div>
             </section>
