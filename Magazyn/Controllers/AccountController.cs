@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Magazyn.Data;
 using Magazyn.Models;
+using Magazyn.Security;
 using System.Net;
 using System.Net.Mail;
-using Magazyn.Security;
 
 namespace Magazyn.Controllers;
 
@@ -53,7 +53,7 @@ public class AccountController : Controller
             return View(model);
         }
 
-        if (user.Password != model.Password) 
+        if (user.Password != model.Password)
         {
             HandleFailedLogin(connection, user);
             ModelState.AddModelError("", "Niepoprawny login lub hasło");
@@ -87,90 +87,87 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult RecoverPassword() => View();
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public IActionResult RecoverPassword(RecoverPasswordViewModel model)
-{
-    if (!ModelState.IsValid) return View(model);
-
-    using var connection = Db.OpenConnection(DbPath);
-    using var checkCmd = connection.CreateCommand();
-    // Pobieramy ID i Email, żeby mieć pewność, dokąd wysłać wiadomość
-    checkCmd.CommandText = "SELECT id, Email FROM Uzytkownicy WHERE username = $user AND Email = $email AND czy_zapomniany = 0 LIMIT 1";
-    checkCmd.Parameters.AddWithValue("$user", model.Username);
-    checkCmd.Parameters.AddWithValue("$email", model.Email);
-
-    using var reader = checkCmd.ExecuteReader();
-    if (!reader.Read())
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult RecoverPassword(RecoverPasswordViewModel model)
     {
-        ModelState.AddModelError("", "Niepoprawne dane. Login lub e-mail są nieprawidłowe.");
-        return View(model);
-    }
+        if (!ModelState.IsValid) return View(model);
 
-    long userId = Convert.ToInt64(reader["id"]);
-    string userEmail = reader["Email"].ToString()!;
-    reader.Close(); // Zamykamy reader przed kolejnym zapytaniem
+        using var connection = Db.OpenConnection(DbPath);
+        using var checkCmd = connection.CreateCommand();
 
-    // Generujemy hasło
-    string temporaryPassword = PasswordGenerator.Generate(10);
+        // Pobieramy ID i Email, żeby mieć pewność, dokąd wysłać wiadomość
+        checkCmd.CommandText = "SELECT id, Email FROM Uzytkownicy WHERE username = $user AND Email = $email AND czy_zapomniany = 0 LIMIT 1";
+        checkCmd.Parameters.AddWithValue("$user", model.Username);
+        checkCmd.Parameters.AddWithValue("$email", model.Email);
 
-    // Aktualizacja bazy danych
-    using var updateCmd = connection.CreateCommand();
-    updateCmd.CommandText = "UPDATE Uzytkownicy SET Password = $pass, czy_haslo_tymczasowe = 1, liczba_blednych_logowan = 0, blokada_do = NULL WHERE id = $id";
-    updateCmd.Parameters.AddWithValue("$pass", temporaryPassword);
-    updateCmd.Parameters.AddWithValue("$id", userId);
-    updateCmd.ExecuteNonQuery();
-
-    // --- WYSYŁKA E-MAIL ---
-    bool mailSent = SendEmail(userEmail, temporaryPassword);
-
-    if (mailSent)
-    {
-        TempData["SuccessMessage"] = "Nowe hasło tymczasowe zostało wysłane na Twój adres e-mail.";
-    }
-    else
-    {
-        // Jeśli mail nie wyjdzie, pokazujemy hasło na ekranie (opcja ratunkowa)
-        TempData["SuccessMessage"] = $"[BŁĄD WYSYŁKI] Twoje hasło tymczasowe to: {temporaryPassword}";
-    }
-
-    return View();
-}
-
-// Nowa metoda pomocnicza do wysyłki
-private bool SendEmail(string targetEmail, string password)
-{
-    try
-    {
-        // Konfiguracja serwera (użyj swoich danych lub Mailtrapa)
-        var smtpClient = new SmtpClient("smtp.gmail.com") 
+        using var reader = checkCmd.ExecuteReader();
+        if (!reader.Read())
         {
-            Port = 587,
-            Credentials = new NetworkCredential("TWOJ_EMAIL@gmail.com", "TWOJE_HASLO_APLIKACJI"),
-            EnableSsl = true,
-        };
+            ModelState.AddModelError("", "Niepoprawne dane. Login lub e-mail są nieprawidłowe.");
+            return View(model);
+        }
 
-        var mailMessage = new MailMessage
+        long userId = Convert.ToInt64(reader["id"]);
+        string userEmail = reader["Email"].ToString()!;
+        reader.Close();
+
+        // Generujemy hasło z PasswordGenerator (10 znaków: mała/duża/cyfra/specjalny)
+        string temporaryPassword = PasswordGenerator.Generate(10);
+
+        // Aktualizacja bazy danych
+        using var updateCmd = connection.CreateCommand();
+        updateCmd.CommandText = "UPDATE Uzytkownicy SET Password = $pass, czy_haslo_tymczasowe = 1, liczba_blednych_logowan = 0, blokada_do = NULL WHERE id = $id";
+        updateCmd.Parameters.AddWithValue("$pass", temporaryPassword);
+        updateCmd.Parameters.AddWithValue("$id", userId);
+        updateCmd.ExecuteNonQuery();
+
+        // --- WYSYŁKA E-MAIL ---
+        bool mailSent = SendEmail(userEmail, temporaryPassword);
+
+        if (mailSent)
         {
-            From = new MailAddress("TWOJ_EMAIL@gmail.com", "Magazyn GiTA"),
-            Subject = "Odzyskiwanie hasła",
-            
-            // TUTAJ ZMIENIŁEM TREŚĆ:
-            Body = $"nowe hasło: {password}", 
-            
-            IsBodyHtml = false, // Ustawiamy na false, bo to zwykły tekst, a nie HTML
-        };
+            TempData["SuccessMessage"] = "Nowe hasło tymczasowe zostało wysłane na Twój adres e-mail.";
+        }
+        else
+        {
+            // Jeśli mail nie wyjdzie, pokazujemy hasło na ekranie (opcja ratunkowa)
+            TempData["SuccessMessage"] = $"[BŁĄD WYSYŁKI] Twoje hasło tymczasowe to: {temporaryPassword}";
+        }
 
-        mailMessage.To.Add(targetEmail);
-        smtpClient.Send(mailMessage);
-        return true;
+        return View();
     }
-    catch (Exception ex)
+
+    // Metoda pomocnicza do wysyłki
+    private bool SendEmail(string targetEmail, string password)
     {
-        _logger.LogError(ex, "Błąd wysyłki e-mail");
-        return false;
+        try
+        {
+            var smtpClient = new SmtpClient("smtp.poczta.pl") // <- UZUPEŁNIJ SWÓJ SMTP
+            {
+                Port = 587,
+                Credentials = new NetworkCredential("moj-email@poczta.pl", "moje-haslo-aplikacji"),
+                EnableSsl = true,
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress("moj-email@poczta.pl", "Magazyn GiTA"),
+                Subject = "Odzyskiwanie hasła - Hasło tymczasowe",
+                Body = $"Witaj!\n\nTwoje nowe hasło tymczasowe do systemu to: {password}\n\nZmień je zaraz po zalogowaniu.",
+                IsBodyHtml = false,
+            };
+
+            mailMessage.To.Add(targetEmail);
+            smtpClient.Send(mailMessage);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd podczas wysyłania e-maila do {Email}", targetEmail);
+            return false;
+        }
     }
-}
 
     // ==========================================
     // LG_UC4: ZMIANA HASŁA (WYMAGANA)
@@ -207,7 +204,9 @@ private bool SendEmail(string targetEmail, string password)
         var p = cmd.CreateParameter(); p.ParameterName = "$login"; p.Value = login.Trim(); cmd.Parameters.Add(p);
         using var r = cmd.ExecuteReader();
         if (!r.Read()) return null;
-        return new UserAuthDto {
+
+        return new UserAuthDto
+        {
             Id = Convert.ToInt64(r["id"]),
             Username = r["username"].ToString()!,
             Email = r["Email"].ToString()!,
@@ -221,12 +220,17 @@ private bool SendEmail(string targetEmail, string password)
     private void HandleFailedLogin(System.Data.IDbConnection conn, UserAuthDto user)
     {
         int newCount = user.LiczbaBledow + 1;
-        object lockoutTime = newCount >= MaxFailedAttempts ? DateTime.Now.AddMinutes(LockoutMinutes).ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value;
+        object lockoutTime = newCount >= MaxFailedAttempts
+            ? DateTime.Now.AddMinutes(LockoutMinutes).ToString("yyyy-MM-dd HH:mm:ss")
+            : DBNull.Value;
+
         using var cmd = conn.CreateCommand();
         cmd.CommandText = "UPDATE Uzytkownicy SET liczba_blednych_logowan = $cnt, blokada_do = $lock WHERE id = $id";
+
         var p1 = cmd.CreateParameter(); p1.ParameterName = "$cnt"; p1.Value = newCount; cmd.Parameters.Add(p1);
         var p2 = cmd.CreateParameter(); p2.ParameterName = "$lock"; p2.Value = lockoutTime; cmd.Parameters.Add(p2);
         var p3 = cmd.CreateParameter(); p3.ParameterName = "$id"; p3.Value = user.Id; cmd.Parameters.Add(p3);
+
         cmd.ExecuteNonQuery();
     }
 
@@ -257,12 +261,18 @@ private bool SendEmail(string targetEmail, string password)
             new Claim(ClaimTypes.Email, user.Email)
         };
         foreach (var role in roles) claims.Add(new Claim(ClaimTypes.Role, role));
+
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity), new AuthenticationProperties { IsPersistent = isPersistent });
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(identity),
+            new AuthenticationProperties { IsPersistent = isPersistent }
+        );
     }
 }
 
-public class UserAuthDto {
+public class UserAuthDto
+{
     public long Id { get; set; }
     public string Username { get; set; } = "";
     public string Email { get; set; } = "";
