@@ -1,12 +1,13 @@
 using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Magazyn.Data;
 using Magazyn.Models;
-using Magazyn.Security;
-using System.Net;
-using System.Net.Mail;
+using Magazyn.Security; // Tu znajduje się PasswordGenerator
 
 namespace Magazyn.Controllers;
 
@@ -14,13 +15,16 @@ public class AccountController : Controller
 {
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<AccountController> _logger;
+    private readonly IConfiguration _config;
+
     private const int MaxFailedAttempts = 3;
     private const int LockoutMinutes = 15;
 
-    public AccountController(IWebHostEnvironment env, ILogger<AccountController> logger)
+    public AccountController(IWebHostEnvironment env, ILogger<AccountController> logger, IConfiguration config)
     {
         _env = env;
         _logger = logger;
+        _config = config;
     }
 
     private string DbPath => Db.GetDbPath(_env);
@@ -41,18 +45,21 @@ public class AccountController : Controller
         using var connection = Db.OpenConnection(DbPath);
         UserAuthDto? user = GetUserForAuth(connection, model.Username);
 
-        if (user == null)
+        // NAPRAWA CS0019: Użycie 'is null' zamiast '== null'
+        if (user is null)
         {
             ModelState.AddModelError("", "Niepoprawny login lub hasło");
             return View(model);
         }
 
+        // Sprawdzenie blokady czasowej
         if (user.BlokadaDo.HasValue && user.BlokadaDo.Value > DateTime.Now)
         {
             ModelState.AddModelError("", $"Konto zablokowane do godziny: {user.BlokadaDo.Value:HH:mm}");
             return View(model);
         }
 
+        // Weryfikacja hasła
         if (user.Password != model.Password)
         {
             HandleFailedLogin(connection, user);
@@ -60,10 +67,14 @@ public class AccountController : Controller
             return View(model);
         }
 
+        // Sukces logowania - reset licznika i sesja
         ResetLoginAttempts(connection, user.Id);
         var roles = GetUserRoles(connection, user.Id);
         await SignInUser(user, roles, model.RememberMe);
 
+        _logger.LogInformation("[Auth] Zalogowano użytkownika: {Username}", SL(user.Username));
+
+        // LG_UC4: Wymuszona zmiana hasła przy hasle tymczasowym
         if (user.CzyHasloTymczasowe)
             return RedirectToAction("ChangePassword");
 
@@ -82,26 +93,24 @@ public class AccountController : Controller
     }
 
     // ==========================================
-    // LG_UC3: ODZYSKIWANIE HASŁA
+    // LG_UC3: ODZYSKIWANIE HASŁA (UŻYTKOWNIK)
     // ==========================================
     [HttpGet]
     public IActionResult RecoverPassword() => View();
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult RecoverPassword(RecoverPasswordViewModel model)
+    public async Task<IActionResult> RecoverPassword(RecoverPasswordViewModel model)
     {
         if (!ModelState.IsValid) return View(model);
 
         using var connection = Db.OpenConnection(DbPath);
-        using var checkCmd = connection.CreateCommand();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT id, Email FROM Uzytkownicy WHERE username = $user AND Email = $email AND czy_zapomniany = 0 LIMIT 1";
+        cmd.Parameters.AddWithValue("$user", model.Username);
+        cmd.Parameters.AddWithValue("$email", model.Email);
 
-        // Pobieramy ID i Email, żeby mieć pewność, dokąd wysłać wiadomość
-        checkCmd.CommandText = "SELECT id, Email FROM Uzytkownicy WHERE username = $user AND Email = $email AND czy_zapomniany = 0 LIMIT 1";
-        checkCmd.Parameters.AddWithValue("$user", model.Username);
-        checkCmd.Parameters.AddWithValue("$email", model.Email);
-
-        using var reader = checkCmd.ExecuteReader();
+        using var reader = cmd.ExecuteReader();
         if (!reader.Read())
         {
             ModelState.AddModelError("", "Niepoprawne dane. Login lub e-mail są nieprawidłowe.");
@@ -112,61 +121,47 @@ public class AccountController : Controller
         string userEmail = reader["Email"].ToString()!;
         reader.Close();
 
-        // Generujemy hasło z PasswordGenerator (10 znaków: mała/duża/cyfra/specjalny)
-        string temporaryPassword = PasswordGenerator.Generate(10);
+        // GENEROWANIE: Twoja funkcja PasswordGenerator
+        string tempPass = PasswordGenerator.Generate(10);
+        UpdatePasswordInDb(connection, userId, tempPass, true);
 
-        // Aktualizacja bazy danych
-        using var updateCmd = connection.CreateCommand();
-        updateCmd.CommandText = "UPDATE Uzytkownicy SET Password = $pass, czy_haslo_tymczasowe = 1, liczba_blednych_logowan = 0, blokada_do = NULL WHERE id = $id";
-        updateCmd.Parameters.AddWithValue("$pass", temporaryPassword);
-        updateCmd.Parameters.AddWithValue("$id", userId);
-        updateCmd.ExecuteNonQuery();
-
-        // --- WYSYŁKA E-MAIL ---
-        bool mailSent = SendEmail(userEmail, temporaryPassword);
-
-        if (mailSent)
-        {
-            TempData["SuccessMessage"] = "Nowe hasło tymczasowe zostało wysłane na Twój adres e-mail.";
-        }
-        else
-        {
-            // Jeśli mail nie wyjdzie, pokazujemy hasło na ekranie (opcja ratunkowa)
-            TempData["SuccessMessage"] = $"[BŁĄD WYSYŁKI] Twoje hasło tymczasowe to: {temporaryPassword}";
-        }
+        bool sent = await SendEmail(userEmail, tempPass);
+        TempData["SuccessMessage"] = sent 
+            ? "Nowe hasło tymczasowe zostało wysłane na Twój adres e-mail." 
+            : $"[BŁĄD WYSYŁKI] Twoje hasło tymczasowe to: {tempPass}";
 
         return View();
     }
 
-    // Metoda pomocnicza do wysyłki
-    private bool SendEmail(string targetEmail, string password)
+    // ==========================================
+    // LG_UC5: GENEROWANIE HASŁA (ADMINISTRATOR)
+    // ==========================================
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AdminGeneratePassword(long id)
     {
-        try
+        using var connection = Db.OpenConnection(DbPath);
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Email FROM Uzytkownicy WHERE id = $id LIMIT 1";
+        cmd.Parameters.AddWithValue("$id", id);
+        
+        string? email = cmd.ExecuteScalar()?.ToString();
+        if (string.IsNullOrEmpty(email))
         {
-            var smtpClient = new SmtpClient("smtp.poczta.pl") // <- UZUPEŁNIJ SWÓJ SMTP
-            {
-                Port = 587,
-                Credentials = new NetworkCredential("moj-email@poczta.pl", "moje-haslo-aplikacji"),
-                EnableSsl = true,
-            };
-
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress("moj-email@poczta.pl", "Magazyn GiTA"),
-                Subject = "Odzyskiwanie hasła - Hasło tymczasowe",
-                Body = $"Witaj!\n\nTwoje nowe hasło tymczasowe do systemu to: {password}\n\nZmień je zaraz po zalogowaniu.",
-                IsBodyHtml = false,
-            };
-
-            mailMessage.To.Add(targetEmail);
-            smtpClient.Send(mailMessage);
-            return true;
+            TempData["ErrorMessage"] = "Brak adresu e-mail dla tego użytkownika.";
+            return RedirectToAction("UserDetails", "Uzytkownicy", new { id });
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Błąd podczas wysyłania e-maila do {Email}", targetEmail);
-            return false;
-        }
+
+        // GENEROWANIE: Twoja funkcja PasswordGenerator
+        string tempPass = PasswordGenerator.Generate(10);
+        UpdatePasswordInDb(connection, id, tempPass, true);
+
+        bool sent = await SendEmail(email, tempPass);
+        TempData["SuccessMessage"] = sent 
+            ? "Hasło zostało wygenerowane i wysłane na e-mail użytkownika." 
+            : $"[BŁĄD WYSYŁKI] Wygenerowane hasło: {tempPass}";
+
+        return RedirectToAction("UserDetails", "Uzytkownicy", new { id });
     }
 
     // ==========================================
@@ -182,14 +177,10 @@ public class AccountController : Controller
         if (!ModelState.IsValid) return View(model);
 
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        if (userIdClaim == null) return RedirectToAction("Login");
+        if (userIdClaim is null) return RedirectToAction("Login");
 
         using var connection = Db.OpenConnection(DbPath);
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = "UPDATE Uzytkownicy SET Password = $pass, czy_haslo_tymczasowe = 0 WHERE id = $id";
-        cmd.Parameters.AddWithValue("$pass", model.NewPassword);
-        cmd.Parameters.AddWithValue("$id", userIdClaim.Value);
-        cmd.ExecuteNonQuery();
+        UpdatePasswordInDb(connection, Convert.ToInt64(userIdClaim.Value), model.NewPassword, false);
 
         return RedirectToAction("AdminPanel", "Uzytkownicy");
     }
@@ -197,16 +188,57 @@ public class AccountController : Controller
     // ==========================================
     // METODY POMOCNICZE
     // ==========================================
+
+    private void UpdatePasswordInDb(System.Data.IDbConnection conn, long userId, string pass, bool isTemp)
+    {
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "UPDATE Uzytkownicy SET Password = $pass, czy_haslo_tymczasowe = $temp, liczba_blednych_logowan = 0, blokada_do = NULL WHERE id = $id";
+        
+        var p1 = cmd.CreateParameter(); p1.ParameterName = "$pass"; p1.Value = pass; cmd.Parameters.Add(p1);
+        var p2 = cmd.CreateParameter(); p2.ParameterName = "$temp"; p2.Value = isTemp ? 1 : 0; cmd.Parameters.Add(p2);
+        var p3 = cmd.CreateParameter(); p3.ParameterName = "$id"; p3.Value = userId; cmd.Parameters.Add(p3);
+        
+        cmd.ExecuteNonQuery();
+    }
+
+    private async Task<bool> SendEmail(string targetEmail, string password)
+    {
+        try
+        {
+            var apiToken = _config["Mailtrap:ApiToken"];
+            var fromEmail = _config["Mailtrap:FromEmail"];
+            var fromName = _config["Mailtrap:FromName"];
+
+            if (string.IsNullOrWhiteSpace(apiToken)) return false;
+
+            using var http = new HttpClient();
+            using var req = new HttpRequestMessage(HttpMethod.Post, "https://send.api.mailtrap.io/api/send");
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+
+            var payload = new {
+                from = new { email = fromEmail, name = fromName },
+                to = new[] { new { email = targetEmail } },
+                subject = "Odzyskiwanie hasła - Magazyn GiTA",
+                text = $"nowe hasło: {password}"
+            };
+
+            req.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            using var resp = await http.SendAsync(req);
+            return resp.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+
     private UserAuthDto? GetUserForAuth(System.Data.IDbConnection conn, string login)
     {
         using var cmd = conn.CreateCommand();
         cmd.CommandText = "SELECT id, username, Email, Password, liczba_blednych_logowan, blokada_do, czy_haslo_tymczasowe FROM Uzytkownicy WHERE LOWER(username) = LOWER($login) AND czy_zapomniany = 0 LIMIT 1";
         var p = cmd.CreateParameter(); p.ParameterName = "$login"; p.Value = login.Trim(); cmd.Parameters.Add(p);
+        
         using var r = cmd.ExecuteReader();
         if (!r.Read()) return null;
 
-        return new UserAuthDto
-        {
+        return new UserAuthDto {
             Id = Convert.ToInt64(r["id"]),
             Username = r["username"].ToString()!,
             Email = r["Email"].ToString()!,
@@ -220,17 +252,15 @@ public class AccountController : Controller
     private void HandleFailedLogin(System.Data.IDbConnection conn, UserAuthDto user)
     {
         int newCount = user.LiczbaBledow + 1;
-        object lockoutTime = newCount >= MaxFailedAttempts
-            ? DateTime.Now.AddMinutes(LockoutMinutes).ToString("yyyy-MM-dd HH:mm:ss")
-            : DBNull.Value;
-
+        object lockout = newCount >= MaxFailedAttempts ? DateTime.Now.AddMinutes(LockoutMinutes).ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value;
+        
         using var cmd = conn.CreateCommand();
         cmd.CommandText = "UPDATE Uzytkownicy SET liczba_blednych_logowan = $cnt, blokada_do = $lock WHERE id = $id";
-
+        
         var p1 = cmd.CreateParameter(); p1.ParameterName = "$cnt"; p1.Value = newCount; cmd.Parameters.Add(p1);
-        var p2 = cmd.CreateParameter(); p2.ParameterName = "$lock"; p2.Value = lockoutTime; cmd.Parameters.Add(p2);
+        var p2 = cmd.CreateParameter(); p2.ParameterName = "$lock"; p2.Value = lockout; cmd.Parameters.Add(p2);
         var p3 = cmd.CreateParameter(); p3.ParameterName = "$id"; p3.Value = user.Id; cmd.Parameters.Add(p3);
-
+        
         cmd.ExecuteNonQuery();
     }
 
@@ -263,11 +293,7 @@ public class AccountController : Controller
         foreach (var role in roles) claims.Add(new Claim(ClaimTypes.Role, role));
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(identity),
-            new AuthenticationProperties { IsPersistent = isPersistent }
-        );
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity), new AuthenticationProperties { IsPersistent = isPersistent });
     }
 }
 

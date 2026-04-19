@@ -45,3 +45,9 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+
+builder.Services.AddHttpClient("Mailtrap", client =>
+{
+    client.BaseAddress = new Uri("https://send.api.mailtrap.io/");
+});
