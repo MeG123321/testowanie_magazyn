@@ -510,3 +510,4 @@ C:\Users\MrG\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\refin
 C:\Users\MrG\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.pdb
 C:\Users\MrG\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.genruntimeconfig.cache
 C:\Users\MrG\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\ref\Magazyn.dll
+C:\Users\MrG\Documents\GitHub\testowanie_magazyn\Magazyn\obj\Debug\net10.0\compressed\nhwogi5a86-{0}-3nne5fw7ji-3nne5fw7ji.gz

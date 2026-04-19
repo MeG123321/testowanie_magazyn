@@ -32,6 +32,7 @@
                     <li><a asp-controller="Uzytkownicy" asp-action="Rejestracja">Rejestracja pracownika</a></li>
                     <li><a asp-controller="Uzytkownicy" asp-action="ForgottenUsers">Użytkownicy zapomniani (RODO)</a></li>
                     <li><a asp-controller="Uprawnienia" asp-action="Uprawnienia">Nadaj Uprawnienia</a></li>
+                    <li><partial name="_LogoutLink" /></li>
                 </ul>
             </nav>
         </aside>
@@ -47,9 +48,12 @@
 
             <section class="zaw">
                 @* Dynamiczny powrót: jeśli zapomniany, wróć do listy RODO, jeśli nie - do personelu *@
-                <a asp-controller="Uzytkownicy" asp-action="@(Model.IsForgotten ? "ForgottenUsers" : "AdminPanel")" class="back-link">
-                    ← Wróć do listy @(Model.IsForgotten ? "zapomnianych" : "pracowników")
-                </a>
+<a href="#" 
+   onclick="goBackReal(this); return false;" 
+   data-default-url='@Url.Action("AdminPanel", "Uzytkownicy")' 
+   class="back-link">
+    ← Wróć do listy
+</a>
 
                 <div class="details-top">
                     <div class="details-left">
