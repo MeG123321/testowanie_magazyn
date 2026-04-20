@@ -201,33 +201,37 @@ public class AccountController : Controller
         cmd.ExecuteNonQuery();
     }
 
-    private async Task<bool> SendEmail(string targetEmail, string password)
+   private async Task<bool> SendEmail(string targetEmail, string password)
+{
+    try
     {
-        try
+        // Dane pobierane z Mailtrap (zakładka SMTP Settings -> Integrations -> c#)
+        using var client = new System.Net.Mail.SmtpClient("sandbox.smtp.mailtrap.io", 2525)
         {
-            var apiToken = _config["Mailtrap:ApiToken"];
-            var fromEmail = _config["Mailtrap:FromEmail"];
-            var fromName = _config["Mailtrap:FromName"];
+            Credentials = new System.Net.NetworkCredential("197e0e58a93abd", "082b154f9ad08b"),
+            EnableSsl = true
+        };
 
-            if (string.IsNullOrWhiteSpace(apiToken)) return false;
+        var mailMessage = new System.Net.Mail.MailMessage
+        {
+            From = new System.Net.Mail.MailAddress("magazyn@gita.pl", "Magazyn GiTA"),
+            Subject = "Odzyskiwanie hasła",
+            Body = $"nowe hasło: {password}",
+            IsBodyHtml = false
+        };
 
-            using var http = new HttpClient();
-            using var req = new HttpRequestMessage(HttpMethod.Post, "https://send.api.mailtrap.io/api/send");
-            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+        mailMessage.To.Add(targetEmail);
 
-            var payload = new {
-                from = new { email = fromEmail, name = fromName },
-                to = new[] { new { email = targetEmail } },
-                subject = "Odzyskiwanie hasła - Magazyn GiTA",
-                text = $"nowe hasło: {password}"
-            };
-
-            req.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-            using var resp = await http.SendAsync(req);
-            return resp.IsSuccessStatusCode;
-        }
-        catch { return false; }
+        // Wysyłamy!
+        await client.SendMailAsync(mailMessage);
+        return true;
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Błąd SMTP");
+        return false;
+    }
+}
 
     private UserAuthDto? GetUserForAuth(System.Data.IDbConnection conn, string login)
     {
