@@ -23,8 +23,14 @@
                 <ul>
                     <li><a asp-controller="Uzytkownicy" asp-action="AdminPanel" class="active">Przegląd personelu</a></li>
                     <li><a asp-controller="Uzytkownicy" asp-action="Rejestracja">Rejestracja pracownika</a></li>
-                    <li><a asp-controller="Uzytkownicy" asp-action="ForgottenUsers">Użytkownicy zapomniani (RODO)</a></li>
-                    <li><a asp-controller="Uprawnienia" asp-action="Uprawnienia">Nadaj Uprawnienia</a></li>
+                    
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <li><a asp-controller="Uzytkownicy" asp-action="ForgottenUsers">Użytkownicy zapomniani (RODO)</a></li>
+                    }
+                    
+                    <li><a asp-controller="Uprawnienia" asp-action="Uprawnienia">Lista Uprawnień</a></li>
+                    
                     <li><partial name="_LogoutLink" /></li>
                 </ul>
             </nav>
@@ -49,6 +55,7 @@
                 <div class="search-bar">
                     <form asp-controller="Uzytkownicy"
                           asp-action="EditUser"
+                          asp-route-id="@Model.Id"
                           method="post"
                           class="form-rejestracja">
                         @Html.AntiForgeryToken()
@@ -57,7 +64,6 @@
 
                         <input type="hidden" asp-for="Id" />
 
-                        @* --- SEKCJA 1: DANE OSOBOWE --- *@
                         <h3 class="form-section-title">Dane pracownika</h3>
                         <div class="tabelka">
                             <div class="form-group">
@@ -67,12 +73,11 @@
                             </div>
 
                             <div class="form-group">
-                                <label asp-for="Password">Hasło</label>
+                                <label asp-for="Password">Nowe hasło</label>
                                 <input asp-for="Password"
                                        type="password"
-                                       value=""
                                        autocomplete="new-password"
-                                       placeholder="Zostaw puste, jeśli nie zmieniasz" />
+                                       placeholder="Zostaw puste, jeśli bez zmian" />
                                 <span asp-validation-for="Password" class="field-error"></span>
                             </div>
 
@@ -132,7 +137,6 @@
                             </div>
                         </div>
 
-                        @* --- SEKCJA 2: ADRES --- *@
                         <h3 class="form-section-title">Adres zamieszkania</h3>
                         <div class="tabelka">
                             <div class="form-group">

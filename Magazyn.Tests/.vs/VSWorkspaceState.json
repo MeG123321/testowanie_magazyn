@@ -2,9 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\Magazyn.Tests",
-    "\\Magazyn.Tests\\bin",
-    "\\Magazyn.Tests\\obj"
+    "\\Magazyn.Tests\\bin"
   ],
-  "SelectedNode": "\\Magazyn.Tests\\obj\\NowyFolder",
+  "SelectedNode": "\\Magazyn.Tests\\Testydodawanie.cs",
   "PreviewInSolutionExplorer": false
 }

@@ -16,6 +16,17 @@
 
     <link rel="stylesheet" href="~/css/style.css" />
     <script defer src="~/js/script.js"></script>
+    <style>
+        .role-btn:has(input:checked) { 
+            background-color: #28a745 !important; 
+            color: white !important; 
+            border-color: #1e7e34 !important;
+        }
+        .logout-btn-link {
+            background: none; border: none; color: inherit; font: inherit;
+            cursor: pointer; padding: 0; width: 100%; text-align: left; display: block; outline: none;
+        }
+    </style>
 </head>
 
 <body data-home-url='@Url.Action("Index", "Home")'>
@@ -27,8 +38,15 @@
                 <ul>
                     <li><a asp-controller="Uzytkownicy" asp-action="AdminPanel">Przegląd personelu</a></li>
                     <li><a asp-controller="Uzytkownicy" asp-action="Rejestracja">Rejestracja pracownika</a></li>
-                    <li><a asp-controller="Uzytkownicy" asp-action="ForgottenUsers">Użytkownicy zapomniani (RODO)</a></li>
-                    <li><a asp-controller="Uprawnienia" asp-action="Uprawnienia">Nadaj Uprawnienia</a></li>
+                    
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <li><a asp-controller="Uzytkownicy" asp-action="ForgottenUsers">Użytkownicy zapomniani (RODO)</a></li>
+                    }
+
+                    <li><a asp-controller="Uprawnienia" asp-action="Uprawnienia">Lista Uprawnień</a></li>
+
+                    @* ZMIENIONY LOGOUT *@
                     <li><partial name="_LogoutLink" /></li>
                 </ul>
             </nav>
@@ -37,25 +55,14 @@
         <main class="main">
             <header class="header">
                 <div class="info">
+                    @* ZMIENIONY LOGOUT *@
+                    <a href="#" id="akcja-wyloguj">Wyloguj</a>
+                    <a href="#">Konto</a>
                     <a asp-controller="Home" asp-action="Index">Strona Główna</a>
                 </div>
             </header>
 
             <section class="zaw">
-                @* Komunikaty systemowe (np. o wygenerowaniu hasła) *@
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb; font-weight: bold;">
-                        @TempData["SuccessMessage"]
-                    </div>
-                }
-                @if (TempData["ErrorMessage"] != null)
-                {
-                    <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb; font-weight: bold;">
-                        @TempData["ErrorMessage"]
-                    </div>
-                }
-
                 <a href="#" 
                    onclick="goBackReal(this); return false;" 
                    data-default-url='@Url.Action("AdminPanel", "Uzytkownicy")' 
@@ -89,20 +96,12 @@
                         </div>
                     </div>
 
-                    @* SEKCJA PRZYCISKÓW AKCJI (LG_UC5) *@
                     <div class="action-row">
                         @if (!Model.IsForgotten)
                         {
                             <a class="btn-secondary" asp-controller="Uzytkownicy" asp-action="EditUser" asp-route-id="@Model.Id">
                                 Edytuj
                             </a>
-
-                            @* Przycisk generowania hasła przez administratora *@
-                            <form class="inline-form" asp-controller="Account" asp-action="AdminGeneratePassword" asp-route-id="@Model.Id" method="post"
-                                  onsubmit="return confirm('Czy na pewno wygenerować nowe hasło tymczasowe? Zostanie ono wysłane na e-mail pracownika.');">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn-secondary">Generuj hasło</button>
-                            </form>
 
                             <form class="inline-form" asp-controller="Uzytkownicy" asp-action="ForgetUserFromDetails" asp-route-id="@Model.Id" method="post"
                                   onsubmit="return confirm('Na pewno zapomnieć użytkownika? Tej operacji nie da się cofnąć.');">
@@ -137,7 +136,6 @@
                     </table>
                 </div>
 
-                @* Popup do nadawania uprawnień *@
                 @if (!Model.IsForgotten)
                 {
                     <div id="role-popup" class="popup-overlay">
@@ -159,14 +157,18 @@
                                     }
                                     @foreach (var r in dostepneRole)
                                     {
+                                        if (r.Value == "Administrator" && !User.IsInRole("Administrator"))
+                                        {
+                                            continue;
+                                        }
+
                                         <label class="role-btn">
                                             <input type="checkbox" name="rola" value="@r.Value"
-                                                   @(Model.RoleList.Contains(r.Value) ? "checked" : "") />
+                                                   @(Model.RoleList != null && Model.RoleList.Contains(r.Value) ? "checked" : "") />
                                             @r.Label
                                         </label>
                                     }
                                 </div>
-                                <p class="db-info-note">Kliknij w listę powyżej, aby przełączyć uprawnienia.</p>
                                 <div class="action-row">
                                     <a class="btn-secondary" href="#">Anuluj</a>
                                     <button type="submit" class="btn-primary">Zapisz uprawnienia</button>
