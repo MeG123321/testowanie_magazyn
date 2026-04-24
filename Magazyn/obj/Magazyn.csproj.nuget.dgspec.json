@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/workspaces/testowanie_magazyn/Magazyn/Magazyn.csproj": {}
+    "C:\\Users\\MrG\\Documents\\Nowy folder\\v1\\Magazyn\\Magazyn.csproj": {}
   },
   "projects": {
-    "/workspaces/testowanie_magazyn/Magazyn/Magazyn.csproj": {
+    "C:\\Users\\MrG\\Documents\\Nowy folder\\v1\\Magazyn\\Magazyn.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/workspaces/testowanie_magazyn/Magazyn/Magazyn.csproj",
+        "projectUniqueName": "C:\\Users\\MrG\\Documents\\Nowy folder\\v1\\Magazyn\\Magazyn.csproj",
         "projectName": "Magazyn",
-        "projectPath": "/workspaces/testowanie_magazyn/Magazyn/Magazyn.csproj",
-        "packagesPath": "/home/codespace/.nuget/packages/",
-        "outputPath": "/workspaces/testowanie_magazyn/Magazyn/obj/",
+        "projectPath": "C:\\Users\\MrG\\Documents\\Nowy folder\\v1\\Magazyn\\Magazyn.csproj",
+        "packagesPath": "C:\\Users\\MrG\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\MrG\\Documents\\Nowy folder\\v1\\Magazyn\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/codespace/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\MrG\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -68,7 +68,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.200/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
