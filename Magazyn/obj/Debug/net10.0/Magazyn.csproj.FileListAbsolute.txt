@@ -256,3 +256,16 @@ C:\Users\MrG\Documents\Nowy folder\v1\Magazyn\obj\Debug\net10.0\Magazyn.pdb
 C:\Users\MrG\Documents\Nowy folder\v1\Magazyn\obj\Debug\net10.0\Magazyn.genruntimeconfig.cache
 C:\Users\MrG\Documents\Nowy folder\v1\Magazyn\obj\Debug\net10.0\ref\Magazyn.dll
 C:\Users\MrG\Documents\Nowy folder\v1\Magazyn\obj\Debug\net10.0\compressed\4hhxnjr2a1-{0}-fldqqhmf7l-fldqqhmf7l.gz
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.csproj.AssemblyReference.cache
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\rpswa.dswa.cache.json
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.GeneratedMSBuildEditorConfig.editorconfig
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.AssemblyInfoInputs.cache
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.AssemblyInfo.cs
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.csproj.CoreCompileInputs.cache
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.MvcApplicationPartsAssemblyInfo.cache
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.RazorAssemblyInfo.cache
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.RazorAssemblyInfo.cs
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.sourcelink.json
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.dll
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\refint\Magazyn.dll
+D:\testowanie_magazyn\Magazyn\obj\Debug\net10.0\Magazyn.pdb
