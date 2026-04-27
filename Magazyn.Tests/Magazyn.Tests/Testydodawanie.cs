@@ -161,7 +161,7 @@ namespace Magazyn.Tests.Scenariusze
 
         
         [Fact]
-        public void TC_13_LoginZaKrotki()
+        public void TC_10_LoginZaKrotki()
         {
             UserRegistrationDto uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Username = "abc";
@@ -174,7 +174,7 @@ namespace Magazyn.Tests.Scenariusze
 
       
         [Fact]
-        public void TC_14_HasloZaKrotkie()
+        public void TC_11_HasloZaKrotkie()
         {
             UserRegistrationDto uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Password = "Ab1!";
@@ -187,7 +187,7 @@ namespace Magazyn.Tests.Scenariusze
 
         
         [Fact]
-        public void TC_15_HasloBezZnakuSpecjalnego()
+        public void TC_12_HasloBezZnakuSpecjalnego()
         {
             UserRegistrationDto uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Password = "Test1234";
@@ -200,7 +200,7 @@ namespace Magazyn.Tests.Scenariusze
 
         
         [Fact]
-        public void TC_16_EmailBezMalpy()
+        public void TC_13_EmailBezMalpy()
         {
             UserRegistrationDto uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Email = "marek.nowak01example.com";
@@ -213,7 +213,7 @@ namespace Magazyn.Tests.Scenariusze
 
        
         [Fact]
-        public void TC_17_PeselZLitera()
+        public void TC_14_PeselZLitera()
         {
             UserRegistrationDto uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Pesel = "85021412A4";
@@ -226,7 +226,7 @@ namespace Magazyn.Tests.Scenariusze
 
         
         [Fact]
-        public void TC_18_TelefonZaKrotki()
+        public void TC_15_TelefonZaKrotki()
         {
             UserRegistrationDto uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.NrTelefonu = "60070080";
@@ -239,7 +239,7 @@ namespace Magazyn.Tests.Scenariusze
 
       
         [Fact]
-        public void TC_19_KodPocztowyZlyFormat()
+        public void TC_16_KodPocztowyZlyFormat()
         {
             UserRegistrationDto uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.KodPocztowy = "60101";
@@ -250,7 +250,7 @@ namespace Magazyn.Tests.Scenariusze
             SprawdzCzyZawieraBladDlaPola(listaBledowWalidacji, nameof(UserRegistrationDto.KodPocztowy));
         }
         [Fact]
-        public void TC_61_Login_ZawieraSpacje_Blad()
+        public void TC_17_Login_ZawieraSpacje_Blad()
         {
             var uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Username = "test user";
@@ -262,7 +262,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_63_Pesel_ZaDlugi_Blad()
+        public void TC_18_Pesel_ZaDlugi_Blad()
         {
             var uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Pesel = "850101123456";
@@ -274,7 +274,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_64_Telefon_ZaDlugi_Blad()
+        public void TC_19_Telefon_ZaDlugi_Blad()
         {
             var uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.NrTelefonu = "123456789123";
@@ -286,7 +286,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_65_KodPocztowy_Litery_Blad()
+        public void TC_20_KodPocztowy_Litery_Blad()
         {
             var uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.KodPocztowy = "AA-AAA";
@@ -300,7 +300,7 @@ namespace Magazyn.Tests.Scenariusze
        
 
         [Fact]
-        public void TC_68_Haslo_BrakMalejLitery_Blad()
+        public void TC_21_Haslo_BrakMalejLitery_Blad()
         {
             var uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Password = "TEST123!";
@@ -312,7 +312,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_69_Haslo_BrakWielkiejLitery_Blad()
+        public void TC_22_Haslo_BrakWielkiejLitery_Blad()
         {
             var uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Password = "test123!";
@@ -324,7 +324,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_70_Haslo_BrakZnakuSpecjalnego_Blad()
+        public void TC_23_Haslo_BrakZnakuSpecjalnego_Blad()
         {
             var uzytkownik = UtworzPoprawnegoUzytkownika();
             uzytkownik.Password = "Test1234";

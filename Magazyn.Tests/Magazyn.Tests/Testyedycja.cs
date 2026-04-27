@@ -47,7 +47,7 @@ namespace Magazyn.Tests.Scenariusze
 
      
         [Fact]
-        public void TC_34_Edycja_PustePoleImie()
+        public void TC_24_Edycja_PustePoleImie()
         {
             var vm = Poprawny();
             vm.FirstName = "";
@@ -60,7 +60,7 @@ namespace Magazyn.Tests.Scenariusze
 
         
         [Fact]
-        public void TC_35_Edycja_BlednyEmail()
+        public void TC_25_Edycja_BlednyEmail()
         {
             var vm = Poprawny();
             vm.Email = "piotr.wisniewski.at.example.com";
@@ -73,7 +73,7 @@ namespace Magazyn.Tests.Scenariusze
 
       
         [Fact]
-        public void TC_36_Edycja_BlednyTelefon()
+        public void TC_26_Edycja_BlednyTelefon()
         {
             var vm = Poprawny();
             vm.NrTelefonu = "12345678";
@@ -86,7 +86,7 @@ namespace Magazyn.Tests.Scenariusze
 
         
         [Fact]
-        public void TC_37_Edycja_BlednyKodPocztowy()
+        public void TC_27_Edycja_BlednyKodPocztowy()
         {
             var vm = Poprawny();
             vm.KodPocztowy = "12345";
@@ -99,7 +99,7 @@ namespace Magazyn.Tests.Scenariusze
 
       
         [Fact]
-        public void TC_38_Edycja_BlednyPesel()
+        public void TC_28_Edycja_BlednyPesel()
         {
             var vm = Poprawny();
             vm.Pesel = "12345ABCDE1";
@@ -111,7 +111,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_71_Edycja_Email_BezMalpy_Blad()
+        public void TC_29_Edycja_Email_BezMalpy_Blad()
         {
             var vm = Poprawny();
             vm.Email = "test.pl";
@@ -123,7 +123,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_72_Edycja_Login_ZaKrotki_Blad()
+        public void TC_30_Edycja_Login_ZaKrotki_Blad()
         {
             var vm = Poprawny();
             vm.Username = "abc";
@@ -135,7 +135,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_73_Edycja_Telefon_Litery_Blad()
+        public void TC_31_Edycja_Telefon_Litery_Blad()
         {
             var vm = Poprawny();
             vm.NrTelefonu = "123abc789";
@@ -147,7 +147,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_74_Edycja_Pesel_Litery_Blad()
+        public void TC_32_Edycja_Pesel_Litery_Blad()
         {
             var vm = Poprawny();
             vm.Pesel = "85010A12345";
@@ -159,7 +159,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_75_Edycja_KodPocztowy_BrakMyslnika_Blad()
+        public void TC_33_Edycja_KodPocztowy_BrakMyslnika_Blad()
         {
             var vm = Poprawny();
             vm.KodPocztowy = "60101";
@@ -171,7 +171,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_76_Edycja_Imie_Puste_Blad()
+        public void TC_34_Edycja_Imie_Puste_Blad()
         {
             var vm = Poprawny();
             vm.FirstName = "";
@@ -183,7 +183,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_77_Edycja_Nazwisko_Puste_Blad()
+        public void TC_35_Edycja_Nazwisko_Puste_Blad()
         {
             var vm = Poprawny();
             vm.LastName = "";
@@ -195,7 +195,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_78_Edycja_Haslo_BezCyfry_Blad()
+        public void TC_36_Edycja_Haslo_BezCyfry_Blad()
         {
             var vm = Poprawny();
             vm.Password = "TestHaslo!";
@@ -207,7 +207,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_79_Edycja_Haslo_BezZnakuSpecjalnego_Blad()
+        public void TC_37_Edycja_Haslo_BezZnakuSpecjalnego_Blad()
         {
             var vm = Poprawny();
             vm.Password = "Test1234";
@@ -219,7 +219,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_80_Edycja_Status_Pusty_Blad()
+        public void TC_38_Edycja_Status_Pusty_Blad()
         {
             var vm = Poprawny();
             vm.Status = "";
@@ -232,7 +232,7 @@ namespace Magazyn.Tests.Scenariusze
 
        
         [Fact]
-        public void TC_82_Edycja_Miejscowosc_Pusta_Blad()
+        public void TC_39_Edycja_Miejscowosc_Pusta_Blad()
         {
             var vm = Poprawny();
             vm.Miejscowosc = "";
@@ -245,7 +245,7 @@ namespace Magazyn.Tests.Scenariusze
 
 
         [Fact]
-        public void TC_84_Edycja_NrPosesji_Pusty_Blad()
+        public void TC_40_Edycja_NrPosesji_Pusty_Blad()
         {
             var vm = Poprawny();
             vm.NrPosesji = "";
@@ -257,7 +257,7 @@ namespace Magazyn.Tests.Scenariusze
         }
 
         [Fact]
-        public void TC_85_Edycja_WieleBledowNaraz()
+        public void TC_41_Edycja_WieleBledowNaraz()
         {
             var vm = Poprawny();
             vm.Email = "zly";

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Magazyn.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5b14e065c7f015ced18acdacd03eb105630fea91")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+935ddb220973d57b259d82769bfa5c3e2cb22eba")]
 [assembly: System.Reflection.AssemblyProductAttribute("Magazyn.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Magazyn.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
