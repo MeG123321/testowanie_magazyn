@@ -21,10 +21,9 @@
             <div class="form-group">
                 <label asp-for="NazwaTowaru">Nazwa towaru *</label>
                 <input asp-for="NazwaTowaru" type="text" placeholder="Podaj nazwę towaru" />
-                @* Tutaj wyświetli się komunikat: Towar o podanej nazwie już istnieje *@
                 <span asp-validation-for="NazwaTowaru" class="field-error"></span>
             </div>
-            
+
             <div class="form-group">
                 <label asp-for="RodzajId">Rodzaj towaru *</label>
                 <select asp-for="RodzajId">
